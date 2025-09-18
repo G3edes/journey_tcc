@@ -18,3 +18,11 @@ CREATE TABLE tbl_codigo_recuperacao (
     codigo VARCHAR(10) NOT NULL,
     expiracao DATETIME NOT NULL
 );
+CREATE TABLE tbl_grupo (
+    id_grupo INT AUTO_INCREMENT PRIMARY KEY,
+    nome VARCHAR(100) NOT NULL,
+    area VARCHAR(100),
+    limite_membros INT,
+    descricao TEXT,
+    imagem VARCHAR(255)
+);
