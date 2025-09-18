@@ -1,3 +1,7 @@
+create database db_journey;
+use db_journey;
+
+
 CREATE TABLE tbl_usuario (
     id_usuario INT AUTO_INCREMENT PRIMARY KEY,
     nome_completo VARCHAR(150) NOT NULL,
@@ -7,4 +11,10 @@ CREATE TABLE tbl_usuario (
     descricao TEXT,
     senha VARCHAR(25) NOT NULL,
     tipo_usuario ENUM('Profissional', 'Estudante') NOT NULL
+);
+CREATE TABLE tbl_codigo_recuperacao (
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    email VARCHAR(60) NOT NULL,
+    codigo VARCHAR(10) NOT NULL,
+    expiracao DATETIME NOT NULL
 );

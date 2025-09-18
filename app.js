@@ -43,7 +43,7 @@ app.use((req,res,next) =>{
     next()
 })
 
-app.use(express.json)
+app.use(express.json())
 
 /*******************************************************************************************************************
  * 
@@ -53,7 +53,7 @@ app.use(express.json)
 const controllerUser= require('./controller/user/controllerUser')
 const controllerRecuperarSenha = require('./controller/user/controllerRecuperarSenha')
 
-app.post('/v1/planify/usuario', cors(), bodyParserJSON, async function (request, response) {
+app.post('/v1/journey/usuario', cors(), bodyParserJSON, async function (request, response) {
     //recebe o content-type da requisição
     let contentType=request.headers['content-type']
     //recebe do body da requisição os dados encaminhados
@@ -64,7 +64,7 @@ app.post('/v1/planify/usuario', cors(), bodyParserJSON, async function (request,
     response.status(result.status_code)
     response.json(result)
 })
-app.put('/v1/planify/usuario/senha/:id', cors(), bodyParserJSON, async function (request, response) {
+app.put('/v1/journey/usuario/senha/:id', cors(), bodyParserJSON, async function (request, response) {
     //recebe o content-type da requisição
     let contentType=request.headers['content-type']
     //recebe do body da requisição os dados encaminhados
@@ -76,31 +76,31 @@ app.put('/v1/planify/usuario/senha/:id', cors(), bodyParserJSON, async function 
     response.status(result.status_code)
     response.json(result)
 })
-app.get('/v1/planify/usuario', cors(), async function (request, response) {
+app.get('/v1/journey/usuario', cors(), async function (request, response) {
     let result= await controllerUser.listarUsuario()
     response.status(result.status_code)
     response.json(result)
 })
-app.get('/v1/planify/usuario/:id', cors(), async function (request, response) {
+app.get('/v1/journey/usuario/:id', cors(), async function (request, response) {
     let id=request.params.id
     let result= await controllerUser.buscarUsuario(id)
     response.status(result.status_code)
     response.json(result)
 })
-app.get('/v1/planify/usuario/evento/:id', cors(), async function (request, response) {
+app.get('/v1/journey/usuario/evento/:id', cors(), async function (request, response) {
     let id=request.params.id
     let result= await controllerUser.buscarUsuario(id)
     response.status(result.status_code)
     response.json(result)
 })
-app.delete('/v1/planify/usuario/:id', cors(), async function (request, response){
+app.delete('/v1/journey/usuario/:id', cors(), async function (request, response){
     let id = request.params.id
     let result = await controllerUser.excluirUsuario(id)
 
     response.status(result.status_code)
     response.json(result)
 })
-app.put('/v1/planify/usuario/:id', cors(), bodyParserJSON,async function (request, response) {
+app.put('/v1/journey/usuario/:id', cors(), bodyParserJSON,async function (request, response) {
     //content-type requisição
     let contentType= request.headers['content-type']
     //id da requisção
@@ -112,5 +112,10 @@ app.put('/v1/planify/usuario/:id', cors(), bodyParserJSON,async function (reques
     response.json(result)
 })
 
-app.post('/v1/planify/recuperar-senha', cors(), bodyParserJSON, controllerRecuperarSenha.enviarCodigo);
-app.post('/v1/planify/validar-codigo', cors(), bodyParserJSON, controllerRecuperarSenha.validarCodigo);
+app.post('/v1/journey/recuperar-senha', cors(), bodyParserJSON, controllerRecuperarSenha.enviarCodigo);
+app.post('/v1/journey/validar-codigo', cors(), bodyParserJSON, controllerRecuperarSenha.validarCodigo);
+
+
+app.listen(8080, function(){
+    console.log('JOURNEY API rodando na porta 8080')
+})
