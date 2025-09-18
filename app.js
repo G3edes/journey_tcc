@@ -119,3 +119,4 @@ app.post('/v1/journey/validar-codigo', cors(), bodyParserJSON, controllerRecuper
 app.listen(8080, function(){
     console.log('JOURNEY API rodando na porta 8080')
 })
+//all
