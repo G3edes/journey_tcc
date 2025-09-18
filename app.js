@@ -56,6 +56,7 @@ app.use(express.json())
  * 
  ********************************************************************************************************************/
 const controllerUser= require('./controller/user/controllerUser')
+
 const controllerRecuperarSenha = require('./controller/user/controllerRecuperarSenha')
 
 app.post('/v1/journey/usuario', cors(), bodyParserJSON, async function (request, response) {
@@ -121,7 +122,61 @@ app.post('/v1/journey/recuperar-senha', cors(), bodyParserJSON, controllerRecupe
 app.post('/v1/journey/validar-codigo', cors(), bodyParserJSON, controllerRecuperarSenha.validarCodigo);
 
 
+
+/*******************************************************************************************************************
+ * 
+ *                                  GRUPOS
+ * 
+ *******************************************************************************************************************/
+
+const controllerGroup = require('./controller/group/controllerGroup')
+
+app.post('/v1/journey/group', cors(), bodyParserJSON, async (request, response) => {
+    const contentType = request.headers['content-type']
+    const dadosBody = request.body
+
+    const result = await controllerGroup.inserirGrupo(dadosBody, contentType)
+    response.status(result.status_code)
+    response.json(result)
+})
+
+// Listar todos os grupos
+app.get('/v1/journey/group', cors(), async (request, response) => {
+    const result = await controllerGroup.listarGrupos()
+    response.status(result.status_code)
+    response.json(result)
+})
+
+// Buscar grupo por ID
+app.get('/v1/journey/group/:id', cors(), async (request, response) => {
+    const id = request.params.id
+    const result = await controllerGroup.buscarGrupoPorId(id)
+    response.status(result.status_code)
+    response.json(result)
+})
+
+// Atualizar grupo
+app.put('/v1/journey/group/:id', cors(), bodyParserJSON, async (request, response) => {
+    const contentType = request.headers['content-type']
+    const id = request.params.id
+    const dadosBody = request.body
+
+    const result = await controllerGroup.atualizarGrupo(id, dadosBody, contentType)
+    response.status(result.status_code)
+    response.json(result)
+})
+
+// Excluir grupo
+app.delete('/v1/journey/group/:id', cors(), async (request, response) => {
+    const id = request.params.id
+    const result = await controllerGroup.excluirGrupo(id)
+
+    response.status(result.status_code)
+    response.json(result)
+})
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////
+
 app.listen(8080, function(){
     console.log('JOURNEY API rodando na porta 8080')
 })
-//all
