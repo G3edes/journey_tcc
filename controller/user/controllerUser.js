@@ -57,7 +57,7 @@ const atualizarUsuario = async (id, user, contentType) => {
             }
             let result = await DAOUser.selectusuarioById(id)
             if (result != false || typeof (result) == 'object') {
-                if (result.length > 0) {
+                if (result) {
                     user.id = parseInt(id)
 
                     let result = await DAOUser.updateUsuario(user)
@@ -92,7 +92,7 @@ const atualizarSenhaUsuario = async (id, user, contentType) => {
             }
             let result = await DAOUser.selectusuarioById(id)
             if (result != false || typeof (result) == 'object') {
-                if (result.length > 0) {
+                if (result) {
                     user.id = parseInt(id)
 
                     let result = await DAOUser.updateSenhaUsuario(user)
@@ -124,8 +124,8 @@ const excluirUsuario = async function (id) {
             let results = await DAOUser.selectusuarioById(parseInt(id))
 
             if (results != false || typeof (results) == 'object') {
-                //se exestir, faremos o delete
-                if (results.length > 0) {
+                
+                if (results) {
                     //delete    
                     let result = await DAOUser.deleteUsuario(parseInt(id))
 
@@ -204,7 +204,7 @@ const buscarUsuario = async function (id) {
         } else {
             let result = await DAOUser.selectusuarioById(id)
             if (result != false || typeof (result) == 'object') {
-                if (result.length > 0) {
+                if (result) {
                     dados.status = true,
                         dados.status_code = 200,
                         dados.usuario = result
