@@ -179,4 +179,4 @@ app.delete('/v1/journey/group/:id', cors(), async (request, response) => {
 
 app.listen(8080, function(){
     console.log('JOURNEY API rodando na porta 8080')
-})
+})  
