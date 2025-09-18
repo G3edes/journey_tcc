@@ -26,6 +26,11 @@
  *          npm install nodemailer                                                                    *
  *                                                                                                    *
  *          npm install dotenv                                                                        *
+ *                                                                                                    *
+ *          Instalação do gitmoji para melhora de commits                                             *                             
+ *              npm install -save-dev gitmoji-cli                                                     *                    
+ *          Efetuação do commit:                                                                      *
+ *              npx gitmoji -c                                                                        *
  ******************************************************************************************************/
 
 const express =require ('express')
