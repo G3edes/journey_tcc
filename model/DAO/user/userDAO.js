@@ -2,15 +2,47 @@
  * OBJETIVO: Criar a comunicação com o Banco de Dados para fazer o CRUD de cadastro
  * DATA: 18/09/2025
  * AUTOR: Gabriel Guedes
- * Versão: 2.1 (Mix + Config.js)
+ * Versão: 2.1
  **************************************************************************************************************************/
 
 const { PrismaClient } = require('@prisma/client')
-const message = require('./config.js')
+const message = require('../../../module/config')
 
 const prisma = new PrismaClient()
 
 // Inserir novo usuário
+const inserirUsuario = async (dados) => {
+  try {
+    const result = await prisma.$queryRaw`
+      CALL inserir_usuario(
+        ${dados.nome_completo},
+        ${dados.email},
+        ${dados.senha},
+        ${dados.data_nascimento},
+        ${dados.foto_perfil || null},
+        ${dados.descricao || null},
+        ${dados.tipo_usuario},
+        ${dados.linkedin_url || null}
+      )
+    `
+
+    // O MySQL retorna a procedure como array de arrays
+    // Se você usou SELECT ROW_COUNT(), pode pegar assim:
+    const linhasAfetadas = result[0][0]?.linhas_afetadas || 0
+
+    if (linhasAfetadas > 0) {
+      return message.SUCESS_CREATED_ITEM
+    } else {
+      return message.ERROR_INTERNAL_SERVER_MODEL
+    }
+
+  } catch (error) {
+    console.error("inserirUsuario erro:", error)
+    return message.ERROR_INTERNAL_SERVER_MODEL
+  }
+}
+
+/*
 const inserirUsuario = async (dados) => {
   try {
     const sql = `
@@ -48,6 +80,7 @@ const inserirUsuario = async (dados) => {
     return message.ERROR_INTERNAL_SERVER_MODEL
   }
 }
+*/
 
 // Atualizar dados do usuário
 const updateUsuario = async (dados) => {

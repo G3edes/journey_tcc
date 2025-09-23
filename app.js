@@ -33,7 +33,7 @@
  *              npx gitmoji -c                                                                        *
  *                                                                                                    *
  *          Instalação do bcrypt para criptografia                                                    *
- *              npm install bcrypt                                                                    *
+ *              npm install bcryptjs                                                                    *
  *                                                                                                    *
  *          Instalação do jsonwebtoken para gerar token                                               *
  *              npm install jsonwebtoken                                                              *
