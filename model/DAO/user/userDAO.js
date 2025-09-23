@@ -89,19 +89,24 @@ const updateUsuario = async (dados) => {
       return message.ERROR_REQUIRED_FIELDS
     }
 
-    const result = await prisma.$executeRaw`
-      UPDATE tbl_usuario SET
-          nome_completo   = ${dados.nome_completo ?? null},
-          email           = ${dados.email ?? null},
-          senha           = ${dados.senha ?? null},
-          data_nascimento = ${dados.data_nascimento ?? null},
-          foto_perfil     = ${dados.foto_perfil ?? null},
-          descricao       = ${dados.descricao ?? null},
-          tipo_usuario    = ${dados.tipo_usuario ?? null}
-      WHERE id_usuario = ${Number(dados.id)}
+    // Chamada da procedure
+    const result = await prisma.$queryRaw`
+      CALL update_usuario(
+        ${Number(dados.id)},
+        ${dados.nome_completo ?? null},
+        ${dados.email ?? null},
+        ${dados.senha ?? null},
+        ${dados.data_nascimento ?? null},
+        ${dados.foto_perfil ?? null},
+        ${dados.descricao ?? null},
+        ${dados.tipo_usuario ?? null}
+      )
     `
 
-    if(result > 0) {
+    // A procedure retorna ROW_COUNT() -> vem dentro de um array
+    const linhasAfetadas = result[0]?.[0]?.linhas_afetadas ?? 0
+
+    if (linhasAfetadas > 0) {
       return message.SUCESS_UPDATED_ITEM
     } else {
       return message.ERROR_NOT_FOUND
@@ -113,13 +118,22 @@ const updateUsuario = async (dados) => {
   }
 }
 
+
 // Atualizar apenas a senha
 const updateSenhaUsuario = async (id, novaSenha) => {
   try {
-    const sql = `UPDATE tbl_usuario SET senha = ? WHERE id_usuario = ?`
-    const result = await prisma.$executeRawUnsafe(sql, novaSenha, id)
+    if (!id || !novaSenha) {
+      return message.ERROR_REQUIRED_FIELDS
+    }
 
-    if(result > 0) {
+    const result = await prisma.$queryRaw`
+      CALL update_senha_usuario(${Number(id)}, ${novaSenha})
+    `
+
+    // A procedure retorna ROW_COUNT()
+    const linhasAfetadas = result[0]?.[0]?.linhas_afetadas ?? 0
+
+    if (linhasAfetadas > 0) {
       return message.SUCESS_UPDATED_ITEM
     } else {
       return message.ERROR_NOT_FOUND
@@ -134,11 +148,18 @@ const updateSenhaUsuario = async (id, novaSenha) => {
 // Deletar usuário por ID
 const deleteUsuario = async (id) => {
   try {
-    const result = await prisma.$executeRaw`
-      DELETE FROM tbl_usuario WHERE id_usuario = ${id}
+    if (!id) {
+      return message.ERROR_REQUIRED_FIELDS
+    }
+
+    const result = await prisma.$queryRaw`
+      CALL delete_usuario(${Number(id)})
     `
 
-    if(result > 0) {
+    // A procedure retorna ROW_COUNT()
+    const linhasAfetadas = result[0]?.[0]?.linhas_afetadas ?? 0
+
+    if (linhasAfetadas > 0) {
       return message.SUCCESS_DELETED_ITEM
     } else {
       return message.ERROR_NOT_FOUND
@@ -150,14 +171,17 @@ const deleteUsuario = async (id) => {
   }
 }
 
+
 // Listar todos os usuários
 const selectAllUsuario = async () => {
   try {
-    const sql = 'SELECT * FROM tbl_usuario'
-    const result = await prisma.$queryRawUnsafe(sql)
+    const result = await prisma.$queryRaw`CALL select_all_usuario()`
 
-    if(result && result.length > 0) {
-      return result
+    // Em MySQL, CALL retorna um array de arrays
+    const usuarios = result[0] ?? []
+
+    if (usuarios.length > 0) {
+      return usuarios
     } else {
       return message.ERROR_NOT_FOUND
     }
@@ -168,28 +192,24 @@ const selectAllUsuario = async () => {
   }
 }
 
+
 // Buscar usuário por ID
 const selectUsuarioById = async (id) => {
   try {
-    const sql = `SELECT * FROM tbl_usuario WHERE id_usuario = ${Number(id)} LIMIT 1;`
-    const rs = await prisma.$queryRawUnsafe(sql)
-    return rs && rs.length > 0 
-    ? rs[0] 
-    : null
+    const rs = await prisma.$queryRaw`CALL select_usuario_by_id(${Number(id)})`
+    return rs[0]?.[0] ?? null
   } catch (error) {
     console.error("selectUsuarioById erro:", error)
     return null
   }
 }
 
+
 // Buscar usuário por Email
 const selectUsuarioByEmail = async (email) => {
   try {
-    const sql = `SELECT * FROM tbl_usuario WHERE email = ? LIMIT 1;`
-    const rs = await prisma.$queryRawUnsafe(sql, email)
-    return rs && rs.length > 0 
-    ? rs[0] 
-    : null
+    const rs = await prisma.$queryRaw`CALL select_usuario_by_email(${email})`
+    return rs[0]?.[0] ?? null
   } catch (error) {
     console.error("selectUsuarioByEmail erro:", error)
     return null
@@ -199,14 +219,8 @@ const selectUsuarioByEmail = async (email) => {
 // Pegar o último ID inserido
 const selectLastId = async () => {
   try {
-    const result = await prisma.$queryRaw`
-      SELECT id_usuario FROM tbl_usuario
-      ORDER BY id_usuario DESC
-      LIMIT 1
-    `
-    return result.length > 0 
-    ? result[0].id_usuario 
-    : null
+    const result = await prisma.$queryRaw`CALL select_last_usuario_id()`
+    return result[0]?.[0]?.id_usuario ?? null
   } catch (error) {
     console.error("selectLastId erro:", error)
     return null
