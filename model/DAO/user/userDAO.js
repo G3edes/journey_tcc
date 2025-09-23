@@ -220,8 +220,12 @@ const selectUsuarioByEmail = async (email) => {
 // Pegar o último ID inserido
 const selectLastId = async () => {
   try {
-    const result = await prisma.$queryRaw`CALL select_last_usuario_id()`
-    return result[0]?.[0]?.id_usuario ?? null
+    const sql = 'SELECT id_usuario FROM tbl_usuario ORDER BY id_usuario DESC LIMIT 1'
+    const result = await prisma.$queryRawUnsafe(sql)
+
+    // Se houver resultado, retorna o último id_usuario, senão retorna null
+    return result && result.length > 0 ? result[0].id_usuario : null
+
   } catch (error) {
     console.error("selectLastId erro:", error)
     return null

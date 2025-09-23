@@ -149,28 +149,27 @@ END$$
 
 --DELIMITER ;
 
-DELIMITER $$
+--DELIMITER $$
 
 ---Procedure para voltar email usuario----
-CREATE PROCEDURE select_usuario_by_email(IN p_email VARCHAR(255))
-BEGIN
-    SELECT * FROM tbl_usuario
-    WHERE email = p_email
-    LIMIT 1;
-END$$
-
-DELIMITER ;
+--CREATE PROCEDURE select_usuario_by_email(IN p_email VARCHAR(255))
+--BEGIN
+--    SELECT * FROM tbl_usuario
+--    WHERE email = p_email
+--    LIMIT 1;
+--END$$
+--
+--DELIMITER ;
 
 ---Procedure para voltar último usuario----
 
 
-DELIMITER $$
+--DELIMITER $$
 
-CREATE PROCEDURE select_last_usuario_id()
-BEGIN
-    SELECT id_usuario FROM tbl_usuario
-    ORDER BY id_usuario DESC
-    LIMIT 1;
-END$$
-
-DELIMITER ;
+--CREATE PROCEDURE select_last_usuario_id()
+--BEGIN
+--    SELECT id_usuario FROM tbl_usuario
+--    ORDER BY id_usuario DESC
+--    LIMIT 1;
+--END$$
+--DELIMITER ;
