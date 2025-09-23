@@ -31,6 +31,12 @@
  *              npm install -save-dev gitmoji-cli                                                     *                    
  *          Efetuação do commit:                                                                      *
  *              npx gitmoji -c                                                                        *
+ *                                                                                                    *
+ *          Instalação do bcrypt para criptografia                                                    *
+ *              npm install bcrypt                                                                    *
+ *                                                                                                    *
+ *          Instalação do jsonwebtoken para gerar token                                               *
+ *              npm install jsonwebtoken                                                              *
  ******************************************************************************************************/
 
 const express =require ('express')
