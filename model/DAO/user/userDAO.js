@@ -21,8 +21,7 @@ const inserirUsuario = async (dados) => {
         ${dados.data_nascimento},
         ${dados.foto_perfil || null},
         ${dados.descricao || null},
-        ${dados.tipo_usuario},
-        ${dados.linkedin_url || null}
+        ${dados.tipo_usuario}
       )
     `
 
@@ -38,10 +37,9 @@ const inserirUsuario = async (dados) => {
 
   } catch (error) {
     console.error("inserirUsuario erro:", error)
-    return message.ERROR_INTERNAL_SERVER_MODEL
+    return false
   }
 }
-
 /*
 const inserirUsuario = async (dados) => {
   try {
@@ -53,9 +51,8 @@ const inserirUsuario = async (dados) => {
         data_nascimento,
         foto_perfil,
         descricao,
-        tipo_usuario,
-        linkedin_url
-      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+        tipo_usuario
+      ) VALUES (?, ?, ?, ?, ?, ?, ?)
     `
     const result = await prisma.$executeRawUnsafe(
       sql,
@@ -65,8 +62,7 @@ const inserirUsuario = async (dados) => {
       dados.data_nascimento,
       dados.foto_perfil || null,
       dados.descricao || null,
-      dados.tipo_usuario,
-      dados.linkedin_url || null
+      dados.tipo_usuario
     )
 
     if(result > 0) {
@@ -83,6 +79,10 @@ const inserirUsuario = async (dados) => {
 */
 
 // Atualizar dados do usuário
+
+
+
+
 const updateUsuario = async (dados) => {
   try {
     if (!dados || !dados.id) {
@@ -97,8 +97,7 @@ const updateUsuario = async (dados) => {
           data_nascimento = ${dados.data_nascimento ?? null},
           foto_perfil     = ${dados.foto_perfil ?? null},
           descricao       = ${dados.descricao ?? null},
-          tipo_usuario    = ${dados.tipo_usuario ?? null},
-          linkedin_url    = ${dados.linkedin_url ?? null}
+          tipo_usuario    = ${dados.tipo_usuario ?? null}
       WHERE id_usuario = ${Number(dados.id)}
     `
 
