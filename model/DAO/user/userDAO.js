@@ -203,12 +203,14 @@ const selectUsuarioById = async (id) => {
   }
 }
 
-
-// Buscar usuário por Email
 const selectUsuarioByEmail = async (email) => {
   try {
-    const rs = await prisma.$queryRaw`CALL select_usuario_by_email(${email})`
-    return rs[0]?.[0] ?? null
+    const sql = 'SELECT * FROM tbl_usuario WHERE email = ? LIMIT 1'
+    const rs = await prisma.$queryRawUnsafe(sql, email)
+
+    // Se encontrou, retorna o objeto; se não, retorna null
+    return rs && rs.length > 0 ? rs[0] : null
+
   } catch (error) {
     console.error("selectUsuarioByEmail erro:", error)
     return null
