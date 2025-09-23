@@ -17,7 +17,7 @@ const inserirUsuario = async (user, contentType) => {
     if (
       !user.nome_completo || user.nome_completo.length > 150 ||
       !user.email || user.email.length > 100 ||
-      !user.senha || user.senha.length < 6 || user.senha.length > 100 ||
+      !user.senha || user.senha.length > 100 ||
       !user.data_nascimento || isNaN(Date.parse(user.data_nascimento)) ||
       (user.foto_perfil && user.foto_perfil.length > 255) ||
       !user.tipo_usuario || !["Profissional", "Estudante"].includes(user.tipo_usuario)
