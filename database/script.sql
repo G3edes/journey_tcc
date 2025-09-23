@@ -127,27 +127,27 @@ BEGIN
     SELECT ROW_COUNT() AS linhas_afetadas;
 END$$
 
-DELIMITER ;
+--DELIMITER ;
 
 ---Procedure para voltar todos os usuarios----
-DELIMITER $$
-CREATE PROCEDURE select_all_usuario()
-BEGIN
-    SELECT * FROM tbl_usuario;
-END$$
+--DELIMITER $$
+--CREATE PROCEDURE select_all_usuario()
+--BEGIN
+--    SELECT * FROM tbl_usuario;
+--END$$
 
-DELIMITER ;
+--DELIMITER ;
 
 ---Procedure para voltar id usuario----
-DELIMITER $$
-CREATE PROCEDURE select_usuario_by_id(IN p_id INT)
-BEGIN
-    SELECT * FROM tbl_usuario
-    WHERE id_usuario = p_id
-    LIMIT 1;
-END$$
+--DELIMITER $$
+--CREATE PROCEDURE select_usuario_by_id(IN p_id INT)
+--BEGIN
+--    SELECT * FROM tbl_usuario
+--    WHERE id_usuario = p_id
+--    LIMIT 1;
+--END$$
 
-DELIMITER ;
+--DELIMITER ;
 
 DELIMITER $$
 

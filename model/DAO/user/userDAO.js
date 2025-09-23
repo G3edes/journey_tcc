@@ -114,7 +114,7 @@ const updateUsuario = async (dados) => {
 
   } catch (error) {
     console.error("updateUsuario erro:", error)
-    return message.ERROR_INTERNAL_SERVER_MODEL
+    return false
   }
 }
 
@@ -141,7 +141,7 @@ const updateSenhaUsuario = async (id, novaSenha) => {
 
   } catch (error) {
     console.error("updateSenhaUsuario erro:", error)
-    return message.ERROR_INTERNAL_SERVER_MODEL
+    return false
   }
 }
 
@@ -167,7 +167,7 @@ const deleteUsuario = async (id) => {
 
   } catch (error) {
     console.error("deleteUsuario erro:", error)
-    return message.ERROR_INTERNAL_SERVER_MODEL
+    return false
   }
 }
 
@@ -175,20 +175,16 @@ const deleteUsuario = async (id) => {
 // Listar todos os usuários
 const selectAllUsuario = async () => {
   try {
-    const result = await prisma.$queryRaw`CALL select_all_usuario()`
+    const sql = 'SELECT * FROM tbl_usuario'
+    const result = await prisma.$queryRawUnsafe(sql)
 
-    // Em MySQL, CALL retorna um array de arrays
-    const usuarios = result[0] ?? []
-
-    if (usuarios.length > 0) {
-      return usuarios
+    if(result && result.length > 0) {
+      return result
     } else {
       return message.ERROR_NOT_FOUND
     }
-
-  } catch (error) {
-    console.error("selectAllUsuario erro:", error)
-    return message.ERROR_INTERNAL_SERVER_MODEL
+  }catch{
+    return false
   }
 }
 
@@ -196,8 +192,11 @@ const selectAllUsuario = async () => {
 // Buscar usuário por ID
 const selectUsuarioById = async (id) => {
   try {
-    const rs = await prisma.$queryRaw`CALL select_usuario_by_id(${Number(id)})`
-    return rs[0]?.[0] ?? null
+    const sql = `SELECT * FROM tbl_usuario WHERE id_usuario = ${Number(id)} LIMIT 1;`
+    const rs = await prisma.$queryRawUnsafe(sql)
+    return rs && rs.length > 0 
+    ? rs[0] 
+    : null
   } catch (error) {
     console.error("selectUsuarioById erro:", error)
     return null

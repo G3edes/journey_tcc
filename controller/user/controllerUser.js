@@ -198,6 +198,7 @@ const listarUsuario = async () => {
         usuario: result
       }
     } else {
+      
       return message.ERROR_NOT_FOUND
     }
   } catch (error) {
@@ -213,7 +214,7 @@ const buscarUsuario = async (id) => {
       return message.ERROR_REQUIRED_FIELDS
     }
 
-    const result = await DAOUser.selectusuarioById(id)
+    const result = await DAOUser.selectUsuarioById(id)
     if (result) {
       return {
         status: true,
