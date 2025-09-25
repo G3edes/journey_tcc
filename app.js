@@ -99,12 +99,6 @@ app.get('/v1/journey/usuario/:id', cors(), async function (request, response) {
     response.status(result.status_code)
     response.json(result)
 })
-app.get('/v1/journey/usuario/evento/:id', cors(), async function (request, response) {
-    let id=request.params.id
-    let result= await controllerUser.buscarUsuario(id)
-    response.status(result.status_code)
-    response.json(result)
-})
 app.post('/v1/journey/usuario/login', cors(), async function (request, response) {
     try {
       let dadosBody = request.body
@@ -192,6 +186,58 @@ app.delete('/v1/journey/group/:id', cors(), async (request, response) => {
     response.status(result.status_code)
     response.json(result)
 })
+
+/*******************************************************************************************************************
+ * 
+ *                                  CATEGORIA
+ * 
+ *******************************************************************************************************************/
+
+const controllerCategoria = require('./controller/category/controllerCategoria')
+
+app.post('/v1/journey/categoria', cors(), bodyParserJSON, async function (request, response) {
+    //recebe o content-type da requisição
+    let contentType=request.headers['content-type']
+    //recebe do body da requisição os dados encaminhados
+
+    
+    let dadosBody=request.body
+    let result= await controllerCategoria.inserirCategoria(dadosBody,contentType)
+    response.status(result.status_code)
+    response.json(result)
+})
+app.get('/v1/journey/categoria', cors(), async function (request, response) {
+    let result= await controllerCategoria.listarCategoria()
+    response.status(result.status_code)
+    response.json(result)
+})
+app.get('/v1/journey/categoria/:id', cors(), async function (request, response) {
+    let id=request.params.id
+    let result= await controllerCategoria.buscarCategoria(id)
+    response.status(result.status_code)
+    response.json(result)
+})
+
+app.delete('/v1/journey/categoria/:id', cors(), async function (request, response){
+    let id = request.params.id
+    let result = await controllerCategoria.excluirCategoria(id)
+
+    response.status(result.status_code)
+    response.json(result)
+})
+app.put('/v1/journey/categoria/:id', cors(), bodyParserJSON,async function (request, response) {
+    //content-type requisição
+    let contentType= request.headers['content-type']
+    //id da requisção
+    let id = request.params.id
+    //body da requisição
+    let dadosBody=request.body
+    let result= await  controllerCategoria.atualizarCategoria(id, dadosBody, contentType)
+    response.status(result.status_code)
+    response.json(result)
+})
+
+
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////
 
