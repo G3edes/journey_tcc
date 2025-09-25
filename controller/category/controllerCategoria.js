@@ -1,6 +1,6 @@
 const DAOCategoria=require('../../model/DAO/categoriaDAO.js')
-const DAOEventoCategoria=require('../../model/DAO/evento/eventoCategoriaDAO.js')
-const message =require('../../modulo/config.js')
+
+const message =require('../../module/config.js')
 
 const inserirCategoria = async (categoria, contentType) => {
     let dados = {}
