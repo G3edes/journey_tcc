@@ -67,7 +67,7 @@ const atualizarUsuario = async (id, user, contentType) => {
       return message.ERROR_REQUIRED_FIELDS
     }
 
-    const existe = await DAOUser.selectusuarioById(id)
+    const existe = await DAOUser.selectUsuarioById(id)
     if (!existe) {
       return message.ERROR_NOT_FOUND
     }
@@ -75,7 +75,7 @@ const atualizarUsuario = async (id, user, contentType) => {
     user.id = parseInt(id)
     const result = await DAOUser.updateUsuario(user)
     if (result) {
-      const usuarioAtualizado = await DAOUser.selectusuarioById(id)
+      const usuarioAtualizado = await DAOUser.selectUsuarioById(id)
       return {
         status: true,
         status_code: 200,
@@ -101,7 +101,7 @@ const atualizarSenhaUsuario = async (id, user, contentType) => {
       return message.ERROR_REQUIRED_FIELDS
     }
 
-    const existe = await DAOUser.selectusuarioById(id)
+    const existe = await DAOUser.selectUsuarioById(id)
     if (!existe) {
       return message.ERROR_NOT_FOUND
     }

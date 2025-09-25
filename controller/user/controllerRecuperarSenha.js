@@ -67,7 +67,7 @@ exports.validarCodigo = async (req, res) => {
 
   res.status(200).json({
     message: 'Código validado com sucesso.',
-    id_usuario: usuario[0].id_usuario
+    id_usuario: usuario.id_usuario
   });
 };
 
