@@ -40,44 +40,6 @@ const inserirUsuario = async (dados) => {
     return false
   }
 }
-/*
-const inserirUsuario = async (dados) => {
-  try {
-    const sql = `
-      INSERT INTO tbl_usuario (
-        nome_completo,
-        email,
-        senha,
-        data_nascimento,
-        foto_perfil,
-        descricao,
-        tipo_usuario
-      ) VALUES (?, ?, ?, ?, ?, ?, ?)
-    `
-    const result = await prisma.$executeRawUnsafe(
-      sql,
-      dados.nome_completo,
-      dados.email,
-      dados.senha,
-      dados.data_nascimento,
-      dados.foto_perfil || null,
-      dados.descricao || null,
-      dados.tipo_usuario
-    )
-
-    if(result > 0) {
-      return message.SUCESS_CREATED_ITEM
-    } else {
-      return message.ERROR_INTERNAL_SERVER_MODEL
-    }
-
-  } catch (error) {
-    console.error("inserirUsuario erro:", error)
-    return message.ERROR_INTERNAL_SERVER_MODEL
-  }
-}
-*/
-
 // Atualizar dados do usuário
 
 

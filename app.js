@@ -237,6 +237,56 @@ app.put('/v1/journey/categoria/:id', cors(), bodyParserJSON,async function (requ
     response.json(result)
 })
 
+/*******************************************************************************************************************
+ * 
+ *                                  AREA
+ * 
+ *******************************************************************************************************************/
+const controllerArea = require('./controller/area/controllerArea')
+
+app.post('/v1/journey/area', cors(), bodyParserJSON, async function (request, response) {
+     //recebe o content-type da requisição
+    let contentType=request.headers['content-type']
+    //recebe do body da requisição os dados encaminhados
+
+    
+    let dadosBody=request.body
+    let result= await controllerCategoria.inserirCategoria(dadosBody,contentType)
+    response.status(result.status_code)
+    response.json(result)
+})
+app.get('/v1/journey/area', cors(), async function (request, response) {
+    let result= await controllerArea.listarArea()
+    response.status(result.status_code)
+    response.json(result)
+})
+app.get('/v1/journey/area/:id', cors(), async function (request, response) {
+    let id=request.params.id
+    let result= await controllerArea.buscarArea(id)
+    response.status(result.status_code)
+    response.json(result)
+})
+
+app.delete('/v1/journey/area/:id', cors(), async function (request, response){
+    let id = request.params.id
+    let result = await controllerArea.excluirArea(id)
+
+    response.status(result.status_code)
+    response.json(result)
+})
+app.put('/v1/journey/area/:id', cors(), bodyParserJSON,async function (request, response) {
+    //content-type requisição
+    let contentType= request.headers['content-type']
+    //id da requisção
+    let id = request.params.id
+    //body da requisição
+    let dadosBody=request.body
+    let result= await  controllerArea.atualizarArea(id, dadosBody, contentType)
+    response.status(result.status_code)
+    response.json(result)
+})
+
+
 
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////

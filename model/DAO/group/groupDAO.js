@@ -8,49 +8,66 @@ const { PrismaClient } = require('@prisma/client')
 const prisma = new PrismaClient()
 
 // Inserir grupo
+
 const insertGrupo = async (dados) => {
-    try {
-        const sql = `
-            INSERT INTO tbl_grupo (
-                nome, area, limite_membros, descricao, imagem
-            ) VALUES (?, ?, ?, ?, ?)
-        `
-        const result = await prisma.$executeRawUnsafe(
-            sql,
-            dados.nome,
-            dados.area || null,
-            dados.limite_membros || null,
-            dados.descricao || null,
-            dados.imagem || null
-        )
+  try {
+    const result = await prisma.$queryRaw`
+      CALL inserir_usuario(
+        ${dados.nome},
+        ${dados.area},
+        ${dados.limite_membros},
+        ${dados.descricao},
+        ${dados.imagem || null}
+      )
+    `
 
-        return result ? true : false
-    } catch (error) {
-        console.error(error)
-        return false
+    // O MySQL retorna a procedure como array de arrays
+    // Se você usou SELECT ROW_COUNT(), pode pegar assim:
+    const linhasAfetadas = result[0][0]?.linhas_afetadas || 0
+
+    if (linhasAfetadas > 0) {
+      return linhasAfetadas
+    } else {
+      return message.ERROR_INTERNAL_SERVER_MODEL
     }
-}
 
+  } catch (error) {
+    console.error("inserirUsuario erro:", error)
+    return false
+  }
+}
 // Atualizar grupo
 const updateGrupo = async (dados) => {
-    try {
-        if (!dados || !dados.id) return false
-
-        const result = await prisma.$executeRaw`
-            UPDATE tbl_grupo SET
-                nome = ${dados.nome ?? null},
-                area = ${dados.area ?? null},
-                limite_membros = ${dados.limite_membros ?? null},
-                descricao = ${dados.descricao ?? null},
-                imagem = ${dados.imagem ?? null}
-            WHERE id_grupo = ${Number(dados.id)}
-        `
-
-        return !!result
-    } catch (error) {
-        console.error(error)
-        return false
+  try {
+    if (!dados || !dados.id) {
+      return message.ERROR_REQUIRED_FIELDS
     }
+
+    // Chamada da procedure
+    const result = await prisma.$queryRaw`
+      CALL update_usuario(
+        ${Number(dados.id)},
+        ${dados.nome ?? null},
+        ${dados.area ?? null},
+        ${dados.limite_membros ?? null},
+        ${dados.descricao ?? null},
+        ${dados.imagem ?? null}
+      )
+    `
+
+    // A procedure retorna ROW_COUNT() -> vem dentro de um array
+    const linhasAfetadas = result[0]?.[0]?.linhas_afetadas ?? 0
+
+    if (linhasAfetadas > 0) {
+      return message.SUCESS_UPDATED_ITEM
+    } else {
+      return message.ERROR_NOT_FOUND
+    }
+
+  } catch (error) {
+    console.error("updateUsuario erro:", error)
+    return false
+  }
 }
 
 // Deletar grupo
