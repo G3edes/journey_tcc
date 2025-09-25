@@ -105,6 +105,18 @@ app.get('/v1/journey/usuario/evento/:id', cors(), async function (request, respo
     response.status(result.status_code)
     response.json(result)
 })
+app.post('/v1/journey/usuario/login', cors(), async function (request, response) {
+    try {
+      let dadosBody = request.body
+      let result = await controllerUser.loginUsuario(dadosBody)
+  
+      response.status(result.status_code || 500)
+      response.json(result)
+    } catch (error) {
+      console.error("🔥 endpoint /login:", error)
+      response.status(500).json({ status: false, message: "Erro interno no servidor" })
+    }
+  })
 app.delete('/v1/journey/usuario/:id', cors(), async function (request, response){
     let id = request.params.id
     let result = await controllerUser.excluirUsuario(id)
