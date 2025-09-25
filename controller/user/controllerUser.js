@@ -169,7 +169,7 @@ const excluirUsuario = async (id) => {
       return message.ERROR_REQUIRED_FIELDS
     }
 
-    const existe = await DAOUser.selectusuarioById(id)
+    const existe = await DAOUser.selectUsuarioById(id)
     if (!existe) {
       return message.ERROR_NOT_FOUND
     }
