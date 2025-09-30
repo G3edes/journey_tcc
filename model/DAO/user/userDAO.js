@@ -138,14 +138,15 @@ const selectUsuarioByEmail = async (email) => {
     const sql = `SELECT * FROM vw_usuario WHERE email = ? LIMIT 1`
     const result = await prisma.$queryRawUnsafe(sql, email)
 
-    if (result) {
-      return true
+    if (result && result.length > 0) {
+      // força a conversão para objeto puro
+      return JSON.parse(JSON.stringify(result[0]))
     } else {
-      return false
+      return null
     }
   } catch (error) {
     console.error("selectUsuarioByEmail erro:", error)
-    return false
+    return null
   }
 }
 
