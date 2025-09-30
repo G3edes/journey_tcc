@@ -22,13 +22,20 @@ CREATE TABLE tbl_codigo_recuperacao (
 CREATE TABLE tbl_grupo (
     id_grupo INT AUTO_INCREMENT PRIMARY KEY,
     nome VARCHAR(100) NOT NULL,
-    area VARCHAR(100),
     limite_membros INT,
     descricao TEXT,
-    imagem VARCHAR(255)
+    imagem VARCHAR(255),
+    id_area INT,
+    id_usuario INT,
+    CONSTRAINT fk_grupo_usuario FOREIGN KEY (id_usuario) REFERENCES tbl_usuario(id_usuario),
+    CONSTRAINT fk_grupo_area FOREIGN KEY (id_area) REFERENCES tbl_area(id_area)
 );
 
 CREATE TABLE tbl_categoria (
     id_categoria INT AUTO_INCREMENT PRIMARY KEY,
     nome VARCHAR(100) NOT NULL
+);
+CREATE TABLE tbl_area (
+    id_area INT AUTO_INCREMENT PRIMARY KEY,
+    area VARCHAR(100) NOT NULL
 );

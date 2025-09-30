@@ -152,8 +152,7 @@ const loginUsuario = async (dadosBody) => {
         id: usuario.id_usuario,
         nome: usuario.nome_completo,
         email: usuario.email,
-        tipo_usuario: usuario.tipo_usuario,
-        linkedin_url: usuario.linkedin_url || null,
+        tipo_usuario: usuario.tipo_usuario
       }
     }
   } catch (error) {

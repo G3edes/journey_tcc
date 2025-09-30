@@ -17,7 +17,9 @@ const insertGrupo = async (dados) => {
         ${dados.area},
         ${dados.limite_membros},
         ${dados.descricao},
-        ${dados.imagem || null}
+        ${dados.imagem || null},
+        ${dados.id_usuario},
+        ${dados.area}
       )
     `
 
@@ -51,7 +53,9 @@ const updateGrupo = async (dados) => {
         ${dados.area ?? null},
         ${dados.limite_membros ?? null},
         ${dados.descricao ?? null},
-        ${dados.imagem ?? null}
+        ${dados.imagem ?? null},
+        ${dados.id_usuario},
+        ${dados.area}
       )
     `
 

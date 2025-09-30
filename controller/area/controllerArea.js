@@ -33,9 +33,6 @@ const atualizarArea = async (id, area, contentType) => {
         if (contentType == 'application/json') {
             if (area.area == ''                || area.area == undefined            || area.area == null             || area.area.length>100   
             ){
-                
-
-
                 return message.ERROR_REQUIRED_FIELDS
             }
             let result=await DAOArea.selectCategoriaById(id)

@@ -9,7 +9,9 @@ const inserirGrupo = async (grupo, contentType) => {
                 !grupo.nome || grupo.nome.length > 100 ||
                 (grupo.area && grupo.area.length > 100) ||
                 (grupo.imagem && grupo.imagem.length > 255) ||
-                (grupo.limite_membros && isNaN(grupo.limite_membros))
+                (grupo.limite_membros && isNaN(grupo.limite_membros)) ||
+                !user.id_usuario || user.id_usuario.length > 100 ||
+                !user.id_area || user.id_area.length > 100
             ) {
                 return message.ERROR_REQUIRED_FIELDS
             } else {
@@ -43,7 +45,9 @@ const atualizarGrupo = async (id, grupo, contentType) => {
                 !grupo.nome || grupo.nome.length > 100 ||
                 (grupo.area && grupo.area.length > 100) ||
                 (grupo.imagem && grupo.imagem.length > 255) ||
-                (grupo.limite_membros && isNaN(grupo.limite_membros))
+                (grupo.limite_membros && isNaN(grupo.limite_membros)) ||
+                !user.id_usuario || user.id_usuario.length > 100 ||
+                !user.id_area || user.id_area.length > 100
             ) {
                 return message.ERROR_REQUIRED_FIELDS
             }
