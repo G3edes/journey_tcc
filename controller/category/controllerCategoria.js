@@ -1,4 +1,4 @@
-const DAOCategoria=require('../../model/DAO/categoriaDAO.js')
+const DAOCategoria=require('../../model/DAO/category/categoryDAO.js')
 
 const message =require('../../module/config.js')
 

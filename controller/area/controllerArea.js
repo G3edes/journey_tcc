@@ -1,4 +1,4 @@
-const DAOArea=require('../../model/DAO/areaDAO.js')
+const DAOArea=require('../../model/DAO/area/areaDAO.js')
 
 const message =require('../../module/config.js')
 
