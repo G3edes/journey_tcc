@@ -85,7 +85,7 @@ const selectAllGrupos = async () => {
   try {
     const result = await prisma.$queryRawUnsafe(`SELECT * FROM tbl_grupo`)
     if (result) {
-      return true
+      return result
     } else {
       return false
     }
@@ -102,7 +102,7 @@ const selectGrupoById = async (id) => {
       SELECT * FROM tbl_grupo WHERE id_grupo = ${id}
     `
     if (result) {
-      return true
+      return result
     } else {
       return false
     }
@@ -121,7 +121,7 @@ const selectLastId = async () => {
       LIMIT 1
     `
     if (result) {
-      return true
+      return result
     } else {
       return false
     }
