@@ -291,6 +291,7 @@ app.put('/v1/journey/area/:id', cors(), bodyParserJSON,async function (request, 
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-app.listen(8080, function(){
-    console.log('JOURNEY API rodando na porta 8080')
-})  
+const PORT = process.env.PORT || 3000;
+app.listen(PORT, () => {
+  console.log(`Servidor rodando na porta ${PORT}`);
+});

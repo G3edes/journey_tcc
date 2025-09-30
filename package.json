@@ -11,6 +11,10 @@
     "nodemailer": "^7.0.6",
     "prisma": "^6.16.2"
   },
+  "scripts": {
+  "start": "node app.js",
+  "dev": "nodemon app.js"
+},
   "devDependencies": {
     "gitmoji-cli": "^9.7.0"
   }
