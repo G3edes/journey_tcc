@@ -13,7 +13,7 @@ const prisma = new PrismaClient()
 
 const inserirArea = async (dados) => {
     try {
-        let sql = `CALL sp_insert_area('${dados.area}')`
+        let sql = `CALL inserir_area('${dados.area}')`
 
         let result = await prisma.$executeRawUnsafe(sql)
         return result ? true : false
@@ -25,7 +25,7 @@ const inserirArea = async (dados) => {
 
 const updateArea = async (dados) => {
     try {
-        let sql = `CALL sp_update_area(${dados.id}, '${dados.area}')`
+        let sql = `CALL update_area(${dados.id}, '${dados.area}')`
 
         let result = await prisma.$executeRawUnsafe(sql)
         return result ? true : false
@@ -37,7 +37,7 @@ const updateArea = async (dados) => {
 
 const deleteArea = async (id) => {
     try {
-        let sql = `CALL sp_delete_area(${id})`
+        let sql = `CALL delete_area(${id})`
 
         let result = await prisma.$executeRawUnsafe(sql)
         return result ? true : false

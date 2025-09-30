@@ -61,7 +61,7 @@ const selectAllCategoria = async () => {
 
 const selectCategoriaById = async (id) => {
     try {
-        let sql = `SELECT * FROM vw_categoria_id WHERE id_categoria = ${id}`
+        let sql = `SELECT * FROM vw_categoria WHERE id_categoria = ${id}`
         let result = await prisma.$queryRawUnsafe(sql)
 
         return result && result.length > 0 ? result[0] : false

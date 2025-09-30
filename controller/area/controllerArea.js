@@ -12,7 +12,7 @@ const inserirArea = async (area, contentType) => {
 
                 return message.ERROR_REQUIRED_FIELDS
             }else{
-                let result = await DAOArea.inserirCategoria(area)
+                let result = await DAOArea.inserirArea(area)
                 if (result) {
                     return message.SUCESS_CREATED_ITEM
                 }else{
@@ -30,12 +30,13 @@ const inserirArea = async (area, contentType) => {
 
 const atualizarArea = async (id, area, contentType) => {
     try {
+        console.log(area)
         if (contentType == 'application/json') {
             if (area.area == ''                || area.area == undefined            || area.area == null             || area.area.length>100   
             ){
                 return message.ERROR_REQUIRED_FIELDS
             }
-            let result=await DAOArea.selectCategoriaById(id)
+            let result=await DAOArea.selectAreaById(id)
             if (result != false || typeof(result)== 'object') {
                 if (result.length>0) {
                     area.id=parseInt(id)

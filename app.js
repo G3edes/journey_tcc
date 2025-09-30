@@ -251,7 +251,7 @@ app.post('/v1/journey/area', cors(), bodyParserJSON, async function (request, re
 
     
     let dadosBody=request.body
-    let result= await controllerCategoria.inserirCategoria(dadosBody,contentType)
+    let result= await controllerArea.inserirArea(dadosBody,contentType)
     response.status(result.status_code)
     response.json(result)
 })

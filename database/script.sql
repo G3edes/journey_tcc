@@ -33,7 +33,7 @@ CREATE TABLE tbl_grupo (
 
 CREATE TABLE tbl_categoria (
     id_categoria INT AUTO_INCREMENT PRIMARY KEY,
-    nome VARCHAR(100) NOT NULL
+    categoria VARCHAR(100) NOT NULL
 );
 CREATE TABLE tbl_area (
     id_area INT AUTO_INCREMENT PRIMARY KEY,

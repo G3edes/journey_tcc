@@ -4,19 +4,19 @@
 
 -- CREATE (POST)
 DELIMITER $$
-CREATE PROCEDURE sp_insert_categoria(IN p_nome VARCHAR(100))
+CREATE PROCEDURE sp_insert_categoria(IN p_categoria VARCHAR(100))
 BEGIN
-    INSERT INTO tbl_categoria (nome)
-    VALUES (p_nome);
+    INSERT INTO tbl_categoria (categoria)
+    VALUES (p_categoria);
 END $$
 DELIMITER ;
 
 -- UPDATE (PUT)
 DELIMITER $$
-CREATE PROCEDURE sp_update_categoria(IN p_id INT, IN p_nome VARCHAR(100))
+CREATE PROCEDURE sp_update_categoria(IN p_id INT, IN p_categoria VARCHAR(100))
 BEGIN
     UPDATE tbl_categoria
-    SET nome = p_nome
+    SET nome = p_categoria
     WHERE id_categoria = p_id;
 END $$
 DELIMITER ;

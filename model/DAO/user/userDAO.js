@@ -6,178 +6,167 @@
  **************************************************************************************************************************/
 
 const { PrismaClient } = require('@prisma/client')
-const message = require('./config.js')
-
 const prisma = new PrismaClient()
 
-// Inserir novo usuário
+// Inserir usuário usando procedure
+// Inserir usuário usando procedure
 const inserirUsuario = async (dados) => {
   try {
-    const sql = `
-      INSERT INTO tbl_usuario (
-        nome_completo,
-        email,
-        senha,
-        data_nascimento,
-        foto_perfil,
-        descricao,
-        tipo_usuario
-      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?)
-    `
-    const result = await prisma.$executeRawUnsafe(
+    const sql = `CALL inserir_usuario(?, ?, ?, ?, ?, ?, ?)`
+    const result = await prisma.$queryRawUnsafe(
       sql,
       dados.nome_completo,
       dados.email,
       dados.senha,
-      dados.data_nascimento,
+      dados.data_nascimento || null,
       dados.foto_perfil || null,
       dados.descricao || null,
       dados.tipo_usuario
     )
 
-    if(result > 0) {
-      return message.SUCESS_CREATED_ITEM
+    if (result) {
+      return true
     } else {
-      return message.ERROR_INTERNAL_SERVER_MODEL
+      return false
     }
-
   } catch (error) {
     console.error("inserirUsuario erro:", error)
-    return message.ERROR_INTERNAL_SERVER_MODEL
+    return false
   }
 }
 
-// Atualizar dados do usuário
+// Atualizar usuário
 const updateUsuario = async (dados) => {
   try {
-    if (!dados || !dados.id) {
-      return message.ERROR_REQUIRED_FIELDS
-    }
+    if (!dados || !dados.id) return false
 
-    const result = await prisma.$executeRaw`
-      UPDATE tbl_usuario SET
-          nome_completo   = ${dados.nome_completo ?? null},
-          email           = ${dados.email ?? null},
-          senha           = ${dados.senha ?? null},
-          data_nascimento = ${dados.data_nascimento ?? null},
-          foto_perfil     = ${dados.foto_perfil ?? null},
-          descricao       = ${dados.descricao ?? null},
-          tipo_usuario    = ${dados.tipo_usuario ?? null}
-      WHERE id_usuario = ${Number(dados.id)}
-    `
+    const sql = `CALL update_usuario(?, ?, ?, ?, ?, ?, ?, ?)`
+    const result = await prisma.$queryRawUnsafe(
+      sql,
+      Number(dados.id),
+      dados.nome_completo || null,
+      dados.email || null,
+      dados.senha || null,
+      dados.data_nascimento || null,
+      dados.foto_perfil || null,
+      dados.descricao || null,
+      dados.tipo_usuario || null
+    )
 
-    if(result > 0) {
-      return message.SUCESS_UPDATED_ITEM
+    if (result) {
+      return true
     } else {
-      return message.ERROR_NOT_FOUND
+      return false
     }
-
   } catch (error) {
     console.error("updateUsuario erro:", error)
-    return message.ERROR_INTERNAL_SERVER_MODEL
+    return false
   }
 }
 
-// Atualizar apenas a senha
+// Atualizar senha
 const updateSenhaUsuario = async (id, novaSenha) => {
   try {
-    const sql = `UPDATE tbl_usuario SET senha = ? WHERE id_usuario = ?`
-    const result = await prisma.$executeRawUnsafe(sql, novaSenha, id)
+    const sql = `CALL update_senha_usuario(?, ?)`
+    const result = await prisma.$queryRawUnsafe(sql, id, novaSenha)
 
-    if(result > 0) {
-      return message.SUCESS_UPDATED_ITEM
+    if (result) {
+      return true
     } else {
-      return message.ERROR_NOT_FOUND
+      return false
     }
-
   } catch (error) {
     console.error("updateSenhaUsuario erro:", error)
-    return message.ERROR_INTERNAL_SERVER_MODEL
+    return false
   }
 }
 
-// Deletar usuário por ID
+// Deletar usuário
 const deleteUsuario = async (id) => {
   try {
-    const result = await prisma.$executeRaw`
-      DELETE FROM tbl_usuario WHERE id_usuario = ${id}
-    `
+    const sql = `CALL delete_usuario(?)`
+    const result = await prisma.$queryRawUnsafe(sql, id)
 
-    if(result > 0) {
-      return message.SUCCESS_DELETED_ITEM
+    if (result) {
+      return true
     } else {
-      return message.ERROR_NOT_FOUND
+      return false
     }
-
   } catch (error) {
     console.error("deleteUsuario erro:", error)
-    return message.ERROR_INTERNAL_SERVER_MODEL
+    return false
   }
 }
 
-// Listar todos os usuários
-// Buscar todos os usuários
+// Selecionar todos os usuários
 const selectAllUsuario = async () => {
   try {
-    const sql = 'SELECT * FROM vw_usuario_id'
+    const sql = `SELECT * FROM vw_usuario`
     const result = await prisma.$queryRawUnsafe(sql)
 
-    if (result && result.length > 0) {
-      return result
+    if (result) {
+      return true
     } else {
-      return message.ERROR_NOT_FOUND
+      return false
     }
-
   } catch (error) {
     console.error("selectAllUsuario erro:", error)
-    return message.ERROR_INTERNAL_SERVER_MODEL
+    return false
   }
 }
 
-// Buscar usuário por ID
+// Selecionar usuário por ID
 const selectUsuarioById = async (id) => {
   try {
-    const sql = `SELECT * FROM vw_usuario_id WHERE id_usuario = ${Number(id)} LIMIT 1;`
-    const rs = await prisma.$queryRawUnsafe(sql)
-    return rs && rs.length > 0
-      ? rs[0]
-      : null
+    const sql = `SELECT * FROM vw_usuario WHERE id_usuario = ? LIMIT 1`
+    const result = await prisma.$queryRawUnsafe(sql, id)
+
+    if (result) {
+      return true
+    } else {
+      return false
+    }
   } catch (error) {
     console.error("selectUsuarioById erro:", error)
-    return null
+    return false
   }
 }
 
-// Buscar usuário por Email
+// Selecionar usuário por Email
 const selectUsuarioByEmail = async (email) => {
   try {
-    const sql = `SELECT * FROM vw_usuario_id WHERE email = ? LIMIT 1;`
-    const rs = await prisma.$queryRawUnsafe(sql, email)
-    return rs && rs.length > 0
-      ? rs[0]
-      : null
+    const sql = `SELECT * FROM vw_usuario WHERE email = ? LIMIT 1`
+    const result = await prisma.$queryRawUnsafe(sql, email)
+
+    if (result) {
+      return true
+    } else {
+      return false
+    }
   } catch (error) {
     console.error("selectUsuarioByEmail erro:", error)
-    return null
+    return false
   }
 }
 
-// Pegar o último ID inserido
+// Pegar último ID
 const selectLastId = async () => {
   try {
-    const result = await prisma.$queryRaw`
-      SELECT id_usuario FROM vw_usuario_id
-      ORDER BY id_usuario DESC
-      LIMIT 1
-    `
-    return result.length > 0
-      ? result[0].id_usuario
-      : null
+    const sql = `SELECT id_usuario FROM vw_usuario ORDER BY id_usuario DESC LIMIT 1`
+    const result = await prisma.$queryRawUnsafe(sql)
+
+    if (result) {
+      return true
+    } else {
+      return false
+    }
   } catch (error) {
     console.error("selectLastId erro:", error)
-    return null
+    return false
   }
 }
+
+
 
 module.exports = {
   inserirUsuario,

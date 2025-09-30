@@ -8,46 +8,39 @@ const { PrismaClient } = require('@prisma/client')
 const prisma = new PrismaClient()
 
 // Inserir grupo
-
 const insertGrupo = async (dados) => {
   try {
     const result = await prisma.$queryRaw`
-      CALL inserir_usuario(
+      CALL inserir_grupo(
         ${dados.nome},
-        ${dados.area},
         ${dados.limite_membros},
         ${dados.descricao},
         ${dados.imagem || null},
         ${dados.id_usuario},
-        ${dados.area}
+        ${dados.id_area}
       )
     `
 
-    // O MySQL retorna a procedure como array de arrays
-    // Se você usou SELECT ROW_COUNT(), pode pegar assim:
-    const linhasAfetadas = result[0][0]?.linhas_afetadas || 0
-
-    if (linhasAfetadas > 0) {
-      return linhasAfetadas
+    if (result) {
+      return true
     } else {
-      return message.ERROR_INTERNAL_SERVER_MODEL
+      return false
     }
-
   } catch (error) {
-    console.error("inserirUsuario erro:", error)
+    console.error("insertGrupo erro:", error)
     return false
   }
 }
+
 // Atualizar grupo
 const updateGrupo = async (dados) => {
   try {
     if (!dados || !dados.id) {
-      return message.ERROR_REQUIRED_FIELDS
+      return false
     }
 
-    // Chamada da procedure
     const result = await prisma.$queryRaw`
-      CALL update_usuario(
+      CALL update_grupo(
         ${Number(dados.id)},
         ${dados.nome ?? null},
         ${dados.area ?? null},
@@ -55,84 +48,96 @@ const updateGrupo = async (dados) => {
         ${dados.descricao ?? null},
         ${dados.imagem ?? null},
         ${dados.id_usuario},
-        ${dados.area}
+        ${dados.id_area}
       )
     `
 
-    // A procedure retorna ROW_COUNT() -> vem dentro de um array
-    const linhasAfetadas = result[0]?.[0]?.linhas_afetadas ?? 0
-
-    if (linhasAfetadas > 0) {
-      return message.SUCESS_UPDATED_ITEM
+    if (result) {
+      return true
     } else {
-      return message.ERROR_NOT_FOUND
+      return false
     }
-
   } catch (error) {
-    console.error("updateUsuario erro:", error)
+    console.error("updateGrupo erro:", error)
     return false
   }
 }
 
 // Deletar grupo
 const deleteGrupo = async (id) => {
-    try {
-        const result = await prisma.$executeRaw`
-            DELETE FROM tbl_grupo WHERE id_grupo = ${id}
-        `
-        return result ? true : false
-    } catch (error) {
-        console.error(error)
-        return false
+  try {
+    const result = await prisma.$executeRaw`
+      DELETE FROM tbl_grupo WHERE id_grupo = ${id}
+    `
+    if (result) {
+      return true
+    } else {
+      return false
     }
+  } catch (error) {
+    console.error("deleteGrupo erro:", error)
+    return false
+  }
 }
 
 // Selecionar todos os grupos
 const selectAllGrupos = async () => {
-    try {
-        const sql = `SELECT * FROM tbl_grupo`
-        const result = await prisma.$queryRawUnsafe(sql)
-
-        return result.length > 0 ? result : false
-    } catch (error) {
-        console.error(error)
-        return false
+  try {
+    const result = await prisma.$queryRawUnsafe(`SELECT * FROM tbl_grupo`)
+    if (result) {
+      return true
+    } else {
+      return false
     }
+  } catch (error) {
+    console.error("selectAllGrupos erro:", error)
+    return false
+  }
 }
 
 // Selecionar grupo por ID
 const selectGrupoById = async (id) => {
-    try {
-        const result = await prisma.$queryRaw`
-            SELECT * FROM tbl_grupo WHERE id_grupo = ${id}
-        `
-        return result.length > 0 ? result[0] : false
-    } catch (error) {
-        console.error(error)
-        return false
+  try {
+    const result = await prisma.$queryRaw`
+      SELECT * FROM tbl_grupo WHERE id_grupo = ${id}
+    `
+    if (result) {
+      return true
+    } else {
+      return false
     }
+  } catch (error) {
+    console.error("selectGrupoById erro:", error)
+    return false
+  }
 }
 
 // Selecionar último ID
 const selectLastId = async () => {
-    try {
-        const result = await prisma.$queryRaw`
-            SELECT id_grupo FROM tbl_grupo
-            ORDER BY id_grupo DESC
-            LIMIT 1
-        `
-        return result.length > 0 ? result[0].id_grupo : false
-    } catch (error) {
-        console.error(error)
-        return false
+  try {
+    const result = await prisma.$queryRaw`
+      SELECT id_grupo FROM tbl_grupo
+      ORDER BY id_grupo DESC
+      LIMIT 1
+    `
+    if (result) {
+      return true
+    } else {
+      return false
     }
+  } catch (error) {
+    console.error("selectLastId erro:", error)
+    return false
+  }
 }
 
 module.exports = {
-    insertGrupo,
-    updateGrupo,
-    deleteGrupo,
-    selectAllGrupos,
-    selectGrupoById,
-    selectLastId
+  insertGrupo,
+  updateGrupo,
+  deleteGrupo,
+  selectAllGrupos,
+  selectGrupoById,
+  selectLastId
 }
+
+
