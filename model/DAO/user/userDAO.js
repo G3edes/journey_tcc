@@ -105,7 +105,7 @@ const selectAllUsuario = async () => {
     const result = await prisma.$queryRawUnsafe(sql)
 
     if (result) {
-      return true
+      return result
     } else {
       return false
     }
@@ -122,7 +122,7 @@ const selectUsuarioById = async (id) => {
     const result = await prisma.$queryRawUnsafe(sql, id)
 
     if (result) {
-      return true
+      return result
     } else {
       return false
     }
@@ -157,7 +157,7 @@ const selectLastId = async () => {
     const result = await prisma.$queryRawUnsafe(sql)
 
     if (result) {
-      return true
+      return result
     } else {
       return false
     }
