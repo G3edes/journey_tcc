@@ -10,24 +10,31 @@ const prisma = new PrismaClient()
 // Inserir grupo
 const insertGrupo = async (dados) => {
   try {
+    // CORREÇÃO: Removido o comentário de JS dentro do template literal SQL (` `)
     const result = await prisma.$queryRaw`
-      CALL inserir_grupo(
+      CALL inserir_grupo( 
         ${dados.nome},
         ${dados.limite_membros},
         ${dados.descricao},
-        ${dados.imagem || null},
-        ${dados.id_usuario},
-        ${dados.id_area}
+        ${dados.imagem || 'default_group_image.png'},
+        ${dados.id_area},
+        ${dados.id_usuario} 
       )
     `
 
-    if (result) {
-      return true
+    // O MySQL retorna a procedure como array de arrays. O seu resultado pode variar.
+    // Presumo que a stored procedure retorne o número de linhas afetadas.
+    const linhasAfetadas = result[0][0]?.linhas_afetadas || 0
+
+    if (linhasAfetadas > 0) {
+      return linhasAfetadas
     } else {
-      return false
+      return { status: false, message: 'Erro ao inserir no Banco de Dados.' } 
     }
+
   } catch (error) {
-    console.error("insertGrupo erro:", error)
+    // Mantido o console.error para debugging, é útil.
+    console.error("inserirGrupo erro:", error)
     return false
   }
 }

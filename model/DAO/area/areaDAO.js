@@ -49,7 +49,7 @@ const deleteArea = async (id) => {
 
 const selectAllArea = async () => {
     try {
-        let sql = `SELECT * FROM vw_areas`
+        let sql = `SELECT * FROM vw_area`
         let result = await prisma.$queryRawUnsafe(sql)
 
         return result && result.length > 0 ? result : false
@@ -61,7 +61,7 @@ const selectAllArea = async () => {
 
 const selectAreaById = async (id) => {
     try {
-        let sql = `SELECT * FROM vw_area_id WHERE id_area = ${id}`
+        let sql = `SELECT * FROM vw_area WHERE id_area = ${id}`
         let result = await prisma.$queryRawUnsafe(sql)
 
         return result && result.length > 0 ? result[0] : false

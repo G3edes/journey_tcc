@@ -41,7 +41,7 @@ const atualizarArea = async (id, area, contentType) => {
                 if (result.length>0) {
                     area.id=parseInt(id)
                     
-                    let result = await DAOArea.updateCategoria(area)
+                    let result = await DAOArea.updateArea(area)
                     if (result) {
                         return message.SUCESS_UPDATED_ITEM
                     }else{
@@ -68,13 +68,13 @@ const excluirArea = async function (id){
         }else{
 
             //função que verifica se ID existe no BD
-            let results = await DAOArea.selectCategoriaById(parseInt(id))
+            let results = await DAOArea.selectAreaById(parseInt(id))
 
             if(results != false || typeof(results) == 'object'){
                 //se exestir, faremos o delete
                 if(results.length > 0){
                     //delete    
-                    let result = await DAOArea.deleteCategoria(parseInt(id))
+                    let result = await DAOArea.deleteArea(parseInt(id))
 
                     if(result){
                         return message.SUCCESS_DELETED_ITEM
@@ -97,7 +97,7 @@ const excluirArea = async function (id){
 const listarArea = async function () {
     try {
         let dados={}
-        let result = await DAOArea.selectAllCategoria()
+        let result = await DAOArea.selectAllArea()
         if (result != false || typeof(result)=='object') {
         
             if(result.length>0){
@@ -126,7 +126,7 @@ const buscarArea = async function (id) {
         ) {
             return message.ERROR_REQUIRED_FIELDS //400
         }else{
-            let result = await DAOArea.selectcategoriaById(id)
+            let result = await DAOArea.selectAreaById(id)
             if (result != false || typeof(result)=='object'){
                 if (result.length>0) {
                     dados={
