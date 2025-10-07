@@ -1,4 +1,4 @@
-const DAOUsuarioGrupo = require('../../model/DAO/usuarioGrupo/usuarioGrupoDAO.js') // ajuste o caminho conforme sua estrutura
+const DAOUsuarioGrupo = require('../../model/DAO/user/usuarioGrupoDAO.js') // ajuste o caminho conforme sua estrutura
 const message = require('../../module/config.js') // mensagens padrão (ex: SUCCESS, ERROR)
 
 // Inserir novo relacionamento usuário-grupo

@@ -288,9 +288,12 @@ app.put('/v1/journey/area/:id', cors(), bodyParserJSON,async function (request, 
 
 
 
-
-/////////////////////////////////////////////////////////////////////////////////////////////////////////
-const controllerUsuarioGrupo = require('./controller/usuarioGrupo/controllerUsuarioGrupo')
+/*******************************************************************************************************************
+ * 
+ *                                  USUARIO GRUPO
+ * 
+ *******************************************************************************************************************/
+const controllerUsuarioGrupo = require('./controller/user/controllerUsuarioGrupo')
 // Inserir novo relacionamento
 app.post('/v1/journey/usuario-grupo', cors(), bodyParserJSON, async function (request, response) {
     let contentType = request.headers['content-type']
