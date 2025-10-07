@@ -17,8 +17,8 @@ const insertGrupo = async (dados) => {
         ${dados.limite_membros},
         ${dados.descricao},
         ${dados.imagem || 'default_group_image.png'},
-        ${dados.id_area},
-        ${dados.id_usuario} 
+        ${dados.id_usuario} ,
+        ${dados.id_area}
       )
     `
 
