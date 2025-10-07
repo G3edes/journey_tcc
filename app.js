@@ -290,8 +290,52 @@ app.put('/v1/journey/area/:id', cors(), bodyParserJSON,async function (request, 
 
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////
+const controllerUsuarioGrupo = require('./controller/usuarioGrupo/controllerUsuarioGrupo')
+// Inserir novo relacionamento
+app.post('/v1/journey/usuario-grupo', cors(), bodyParserJSON, async function (request, response) {
+    let contentType = request.headers['content-type']
+    let dadosBody = request.body
 
-const PORT = process.env.PORT || 3000;
+    let result = await controllerUsuarioGrupo.inserirUsuarioGrupo(dadosBody, contentType)
+    response.status(result.status_code)
+    response.json(result)
+})
+
+// Listar todos os relacionamentos
+app.get('/v1/journey/usuario-grupo', cors(), async function (request, response) {
+    let result = await controllerUsuarioGrupo.listarUsuariosGrupos()
+    response.status(result.status_code)
+    response.json(result)
+})
+
+// Buscar relacionamento por ID
+app.get('/v1/journey/usuario-grupo/:id', cors(), async function (request, response) {
+    let id = request.params.id
+    let result = await controllerUsuarioGrupo.buscarUsuarioGrupoPorId(id)
+    response.status(result.status_code)
+    response.json(result)
+})
+
+// Excluir relacionamento
+app.delete('/v1/journey/usuario-grupo/:id', cors(), async function (request, response) {
+    let id = request.params.id
+    let result = await controllerUsuarioGrupo.excluirUsuarioGrupo(id)
+
+    response.status(result.status_code)
+    response.json(result)
+})
+
+// Atualizar relacionamento
+app.put('/v1/journey/usuario-grupo/:id', cors(), bodyParserJSON, async function (request, response) {
+    let contentType = request.headers['content-type']
+    let id = request.params.id
+    let dadosBody = request.body
+
+    let result = await controllerUsuarioGrupo.atualizarUsuarioGrupo(id, dadosBody, contentType)
+    response.status(result.status_code)
+    response.json(result)
+})
+const PORT = process.env.PORT || 8080;
 app.listen(PORT, () => {
   console.log(`Servidor rodando na porta ${PORT}`);
 });

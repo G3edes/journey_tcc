@@ -39,3 +39,20 @@ CREATE TABLE tbl_area (
     id_area INT AUTO_INCREMENT PRIMARY KEY,
     area VARCHAR(100) NOT NULL
 );
+CREATE TABLE tbl_usuario_grupo (
+    id_usuario_grupo INT AUTO_INCREMENT PRIMARY KEY,
+    id_usuario INT NOT NULL,
+    id_grupo INT NOT NULL,
+    entrou_em TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+
+    -- Definição das chaves estrangeiras
+    CONSTRAINT fk_usuario FOREIGN KEY (id_usuario) 
+        REFERENCES tbl_usuario (id_usuario)
+        ON DELETE CASCADE
+        ON UPDATE CASCADE,
+
+    CONSTRAINT fk_grupo FOREIGN KEY (id_grupo) 
+        REFERENCES tbl_grupo (id_grupo)
+        ON DELETE CASCADE
+        ON UPDATE CASCADE
+);
