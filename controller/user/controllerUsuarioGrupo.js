@@ -1,142 +1,140 @@
-const DAOUsuarioGrupo = require('../../model/DAO/user/usuarioGrupoDAO.js') // ajuste o caminho conforme sua estrutura
-const message = require('../../module/config.js') // mensagens padrão (ex: SUCCESS, ERROR)
+/*******************************************************************************************************************
+ * Controller de Usuário-Grupo
+ *******************************************************************************************************************/
+const usuarioGrupoDAO = require("../../model/DAO/user/usuarioGrupoDAO.js");
 
-// Inserir novo relacionamento usuário-grupo
-const inserirUsuarioGrupo = async (usuarioGrupo, contentType) => {
-    try {
-        if (contentType && contentType.includes('application/json')) {
-            if (
-                !usuarioGrupo.id_usuario || isNaN(usuarioGrupo.id_usuario) ||
-                !usuarioGrupo.id_grupo || isNaN(usuarioGrupo.id_grupo)
-            ) {
-                return message.ERROR_REQUIRED_FIELDS
-            } else {
-                let result = await DAOUsuarioGrupo.insertUsuarioGrupo(usuarioGrupo)
-                if (result) {
-                    let lastId = await DAOUsuarioGrupo.selectLastId()
-                    return {
-                        status: true,
-                        status_code: 201,
-                        usuarioGrupoID: lastId,
-                        usuarioGrupo: usuarioGrupo
-                    }
-                } else {
-                    return message.ERROR_INTERNAL_SERVER_MODEL
-                }
-            }
-        } else {
-            return message.ERROR_CONTENT_TYPE
-        }
-    } catch (error) {
-        console.log(error)
-        return message.ERROR_INTERNAL_SERVER_CONTROLLER
-    }
-}
+// Inserir novo vínculo
+const inserirUsuarioGrupo = async (dados, contentType) => {
+  try {
+    if (contentType !== "application/json")
+      return { status: false, status_code: 415, message: "Content-Type inválido" };
 
-// Atualizar relacionamento
-const atualizarUsuarioGrupo = async (id, usuarioGrupo, contentType) => {
-    try {
-        if (contentType && contentType.includes('application/json')) {
-            if (
-                !usuarioGrupo.id_usuario || isNaN(usuarioGrupo.id_usuario) ||
-                !usuarioGrupo.id_grupo || isNaN(usuarioGrupo.id_grupo)
-            ) {
-                return message.ERROR_REQUIRED_FIELDS
-            }
+    if (!dados.id_usuario || !dados.id_grupo)
+      return { status: false, status_code: 400, message: "Campos obrigatórios faltando" };
 
-            let existente = await DAOUsuarioGrupo.selectUsuarioGrupoById(id)
-            if (!existente) return message.ERROR_NOT_FOUND
+    const result = await usuarioGrupoDAO.insertUsuarioGrupo(dados);
+    return result
+      ? { status: true, status_code: 201, message: "Usuário vinculado ao grupo com sucesso" }
+      : { status: false, status_code: 500, message: "Erro ao vincular usuário" };
+  } catch (error) {
+    console.error("Erro inserirUsuarioGrupo:", error);
+    return { status: false, status_code: 500, message: "Erro interno no servidor" };
+  }
+};
 
-            usuarioGrupo.id = parseInt(id)
-            let result = await DAOUsuarioGrupo.updateUsuarioGrupo(usuarioGrupo)
-            if (result) {
-                let atualizado = await DAOUsuarioGrupo.selectUsuarioGrupoById(id)
-                return {
-                    status: true,
-                    status_code: 200,
-                    usuarioGrupo: atualizado
-                }
-            } else {
-                return message.ERROR_INTERNAL_SERVER_MODEL
-            }
-        } else {
-            return message.ERROR_CONTENT_TYPE
-        }
-    } catch (error) {
-        console.log(error)
-        return message.ERROR_INTERNAL_SERVER_CONTROLLER
-    }
-}
-
-// Excluir relacionamento
-const excluirUsuarioGrupo = async (id) => {
-    try {
-        if (!id || isNaN(id) || id <= 0) {
-            return message.ERROR_REQUIRED_FIELDS
-        }
-
-        let existente = await DAOUsuarioGrupo.selectUsuarioGrupoById(id)
-        if (!existente) return message.ERROR_NOT_FOUND
-
-        let result = await DAOUsuarioGrupo.deleteUsuarioGrupo(id)
-        if (result) {
-            return message.SUCCESS_DELETED_ITEM
-        } else {
-            return message.ERROR_INTERNAL_SERVER_MODEL
-        }
-    } catch (error) {
-        console.log(error)
-        return message.ERROR_INTERNAL_SERVER_CONTROLLER
-    }
-}
-
-// Listar todos os relacionamentos
+// Listar todos
 const listarUsuariosGrupos = async () => {
-    try {
-        let registros = await DAOUsuarioGrupo.selectAllUsuariosGrupos()
-        if (registros && registros.length > 0) {
-            return {
-                status: true,
-                status_code: 200,
-                itens: registros.length,
-                usuariosGrupos: registros
-            }
-        } else {
-            return message.ERROR_NOT_FOUND
-        }
-    } catch (error) {
-        console.log(error)
-        return message.ERROR_INTERNAL_SERVER_CONTROLLER
-    }
-}
+  try {
+    const result = await usuarioGrupoDAO.selectAllUsuariosGrupos();
+    return {
+      status: true,
+      status_code: 200,
+      itens: result.length,
+      usuarios_grupos: result
+    };
+  } catch (error) {
+    console.error("Erro listarUsuariosGrupos:", error);
+    return { status: false, status_code: 500, message: "Erro interno no servidor" };
+  }
+};
 
-// Buscar relacionamento por ID
+// Buscar por ID
 const buscarUsuarioGrupoPorId = async (id) => {
-    try {
-        if (!id || isNaN(id) || id <= 0) {
-            return message.ERROR_REQUIRED_FIELDS
-        }
+  try {
+    const result = await usuarioGrupoDAO.selectUsuarioGrupoById(id);
+    if (!result)
+      return { status: false, status_code: 404, message: "Relação não encontrada" };
 
-        let registro = await DAOUsuarioGrupo.selectUsuarioGrupoById(id)
-        if (registro) {
-            return {
-                status: true,
-                status_code: 200,
-                usuarioGrupo: registro
-            }
-        } else {
-            return message.ERROR_NOT_FOUND
-        }
-    } catch (error) {
-        console.log(error)
-        return message.ERROR_INTERNAL_SERVER_CONTROLLER
-    }
-}
+    return { status: true, status_code: 200, usuario_grupo: result };
+  } catch (error) {
+    console.error("Erro buscarUsuarioGrupoPorId:", error);
+    return { status: false, status_code: 500, message: "Erro interno no servidor" };
+  }
+};
+
+// Excluir
+const excluirUsuarioGrupo = async (id) => {
+  try {
+    const result = await usuarioGrupoDAO.deleteUsuarioGrupo(id);
+    return result
+      ? { status: true, status_code: 200, message: "Relação excluída com sucesso" }
+      : { status: false, status_code: 404, message: "Relação não encontrada" };
+  } catch (error) {
+    console.error("Erro excluirUsuarioGrupo:", error);
+    return { status: false, status_code: 500, message: "Erro interno no servidor" };
+  }
+};
+
+// Atualizar
+const atualizarUsuarioGrupo = async (id, dados, contentType) => {
+  try {
+    if (contentType !== "application/json")
+      return { status: false, status_code: 415, message: "Content-Type inválido" };
+
+    const result = await usuarioGrupoDAO.updateUsuarioGrupo(id, dados);
+    return result
+      ? { status: true, status_code: 200, message: "Relação atualizada" }
+      : { status: false, status_code: 404, message: "Relação não encontrada" };
+  } catch (error) {
+    console.error("Erro atualizarUsuarioGrupo:", error);
+    return { status: false, status_code: 500, message: "Erro interno no servidor" };
+  }
+};
+
+// Listar grupos criados por um usuário
+const listarGruposCriadosPorUsuario = async (idUsuario) => {
+  try {
+    const grupos = await usuarioGrupoDAO.selectGroupsCreatedByUser(idUsuario);
+    return {
+      status: true,
+      status_code: 200,
+      itens: grupos.length,
+      grupos
+    };
+  } catch (error) {
+    console.error("Erro listarGruposCriadosPorUsuario:", error);
+    return { status: false, status_code: 500, message: "Erro interno no servidor" };
+  }
+};
+
+// Listar grupos que o usuário participa
+const listarGruposPorUsuario = async (idUsuario) => {
+  try {
+    const grupos = await usuarioGrupoDAO.selectGroupsByUser(idUsuario);
+    return {
+      status: true,
+      status_code: 200,
+      itens: grupos.length,
+      grupos
+    };
+  } catch (error) {
+    console.error("Erro listarGruposPorUsuario:", error);
+    return { status: false, status_code: 500, message: "Erro interno no servidor" };
+  }
+};
+
+// Contar participantes de um grupo
+const contarParticipantes = async (idGrupo) => {
+  try {
+    const total = await usuarioGrupoDAO.countParticipantesByGroup(idGrupo);
+    return {
+      status: true,
+      status_code: 200,
+      total
+    };
+  } catch (error) {
+    console.error("Erro contarParticipantes:", error);
+    return { status: false, status_code: 500, message: "Erro interno no servidor" };
+  }
+};
 
 module.exports = {
-    inserirUsuarioGrupo,
-    atualizarUsuarioGrupo,
-    excluirUsuarioGrupo,
-    listarUsuariosGrupos,
-    buscarUsuarioGrupoPorId
-}
+  inserirUsuarioGrupo,
+  listarUsuariosGrupos,
+  buscarUsuarioGrupoPorId,
+  excluirUsuarioGrupo,
+  atualizarUsuarioGrupo,
+  listarGruposCriadosPorUsuario,
+  listarGruposPorUsuario,
+  contarParticipantes
+};
