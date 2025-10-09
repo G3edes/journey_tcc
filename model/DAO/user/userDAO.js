@@ -40,6 +40,16 @@ const updateUsuario = async (dados) => {
   try {
     if (!dados || !dados.id) return false
 
+    // ✅ Corrige formato da data se vier no padrão ISO
+    let dataFormatada = null
+    if (dados.data_nascimento) {
+      const dateObj = new Date(dados.data_nascimento)
+      if (!isNaN(dateObj)) {
+        // Converte para yyyy-mm-dd
+        dataFormatada = dateObj.toISOString().split("T")[0]
+      }
+    }
+
     const sql = `CALL update_usuario(?, ?, ?, ?, ?, ?, ?, ?)`
     const result = await prisma.$queryRawUnsafe(
       sql,
@@ -47,17 +57,13 @@ const updateUsuario = async (dados) => {
       dados.nome_completo || null,
       dados.email || null,
       dados.senha || null,
-      dados.data_nascimento || null,
+      dataFormatada || null,   // ✅ Usa a data formatada
       dados.foto_perfil || null,
       dados.descricao || null,
       dados.tipo_usuario || null
     )
 
-    if (result) {
-      return true
-    } else {
-      return false
-    }
+    return !!result
   } catch (error) {
     console.error("updateUsuario erro:", error)
     return false
