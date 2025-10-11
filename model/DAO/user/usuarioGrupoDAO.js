@@ -1,166 +1,182 @@
-/*******************************************************************************************************************
- * Objetivo: Arquivo responsável pela manipulação de dados da tabela tbl_usuario_grupo
- * Data: 2025
- * Autor: Journey
- *******************************************************************************************************************/
-
-const { PrismaClient } = require('@prisma/client');
+/*********************************************************************************************
+ * DAO - UsuarioGrupo
+ *********************************************************************************************/
+const { PrismaClient } = require("@prisma/client");
 const prisma = new PrismaClient();
 
-// ===============================================================
-// Inserir novo relacionamento usuário-grupo
-// ===============================================================
-const insertUsuarioGrupo = async (dadosUsuarioGrupo) => {
+// ====================== INSERT ==========================
+const insertUsuarioGrupo = async (dados) => {
   try {
     const sql = `
       INSERT INTO tbl_usuario_grupo (id_usuario, id_grupo, entrou_em)
-      VALUES (${dadosUsuarioGrupo.id_usuario}, ${dadosUsuarioGrupo.id_grupo}, NOW());
+      VALUES (?, ?, NOW())
     `;
-    const result = await prisma.$executeRawUnsafe(sql);
-    return result ? true : false;
+    const result = await prisma.$executeRawUnsafe(
+      sql,
+      dados.id_usuario,
+      dados.id_grupo
+    );
+    console.log(`✅ Usuário ${dados.id_usuario} entrou no grupo ${dados.id_grupo}`);
+    return result > 0;
   } catch (error) {
-    console.error("Erro insertUsuarioGrupo:", error);
+    console.error("❌ Erro insertUsuarioGrupo:", error);
     return false;
   }
 };
 
-// ===============================================================
-// Listar todos os relacionamentos
-// ===============================================================
+// ====================== SELECT ALL ==========================
 const selectAllUsuariosGrupos = async () => {
   try {
-    const sql = `SELECT * FROM tbl_usuario_grupo;`;
+    const sql = `SELECT * FROM tbl_usuario_grupo`;
     const result = await prisma.$queryRawUnsafe(sql);
     return result;
   } catch (error) {
-    console.error("Erro selectAllUsuariosGrupos:", error);
-    return false;
+    console.error("❌ Erro selectAllUsuariosGrupos:", error);
+    return [];
   }
 };
 
-// ===============================================================
-// Buscar relacionamento por ID
-// ===============================================================
+// ====================== SELECT BY ID ==========================
 const selectUsuarioGrupoById = async (id) => {
   try {
-    const sql = `SELECT * FROM tbl_usuario_grupo WHERE id_usuario_grupo = ${id};`;
-    const result = await prisma.$queryRawUnsafe(sql);
-    return result.length > 0 ? result[0] : false;
+    const sql = `SELECT * FROM tbl_usuario_grupo WHERE id_usuario_grupo = ?`;
+    const result = await prisma.$queryRawUnsafe(sql, id);
+    return result.length > 0 ? result[0] : null;
   } catch (error) {
-    console.error("Erro selectUsuarioGrupoById:", error);
-    return false;
+    console.error("❌ Erro selectUsuarioGrupoById:", error);
+    return null;
   }
 };
 
-// ===============================================================
-// Atualizar relacionamento
-// ===============================================================
-const updateUsuarioGrupo = async (id, dadosUsuarioGrupo) => {
+// ====================== UPDATE ==========================
+const updateUsuarioGrupo = async (id, dados) => {
   try {
     const sql = `
-      UPDATE tbl_usuario_grupo
-      SET id_usuario = ${dadosUsuarioGrupo.id_usuario},
-          id_grupo = ${dadosUsuarioGrupo.id_grupo}
-      WHERE id_usuario_grupo = ${id};
+      UPDATE tbl_usuario_grupo 
+      SET id_usuario = ?, id_grupo = ?
+      WHERE id_usuario_grupo = ?
     `;
-    const result = await prisma.$executeRawUnsafe(sql);
-    return result ? true : false;
+    const result = await prisma.$executeRawUnsafe(
+      sql,
+      dados.id_usuario,
+      dados.id_grupo,
+      id
+    );
+    return result > 0;
   } catch (error) {
-    console.error("Erro updateUsuarioGrupo:", error);
+    console.error("❌ Erro updateUsuarioGrupo:", error);
     return false;
   }
 };
 
-// ===============================================================
-// Excluir relacionamento
-// ===============================================================
+// ====================== DELETE BY ID ==========================
 const deleteUsuarioGrupo = async (id) => {
   try {
-    const sql = `DELETE FROM tbl_usuario_grupo WHERE id_usuario_grupo = ${id};`;
-    const result = await prisma.$executeRawUnsafe(sql);
-    return result ? true : false;
+    const sql = `DELETE FROM tbl_usuario_grupo WHERE id_usuario_grupo = ?`;
+    const result = await prisma.$executeRawUnsafe(sql, id);
+    return result > 0;
   } catch (error) {
-    console.error("Erro deleteUsuarioGrupo:", error);
+    console.error("❌ Erro deleteUsuarioGrupo:", error);
     return false;
   }
 };
 
-// ===============================================================
-// Listar grupos que o usuário participa
-// ===============================================================
+// ====================== DELETE POR USUARIO+GRUPO ==========================
+const deleteUsuarioGrupoByIds = async (idUsuario, idGrupo) => {
+  try {
+    const sql = `
+      DELETE FROM tbl_usuario_grupo
+      WHERE id_usuario = ? AND id_grupo = ?
+    `;
+    const result = await prisma.$executeRawUnsafe(sql, idUsuario, idGrupo);
+
+    if (result > 0) {
+      console.log(`✅ Usuário ${idUsuario} removido do grupo ${idGrupo}`);
+      return true;
+    } else {
+      console.warn("⚠️ Nenhum registro deletado (usuário não estava no grupo)");
+      return false;
+    }
+  } catch (error) {
+    console.error("❌ Erro deleteUsuarioGrupoByIds:", error);
+    return false;
+  }
+};
+
+// ====================== VERIFICAR PARTICIPAÇÃO ==========================
+const verificarParticipacao = async (idUsuario, idGrupo) => {
+  try {
+    const sql = `
+      SELECT * FROM tbl_usuario_grupo
+      WHERE id_usuario = ? AND id_grupo = ?
+    `;
+    const result = await prisma.$queryRawUnsafe(sql, idUsuario, idGrupo);
+    return result.length > 0;
+  } catch (error) {
+    console.error("❌ Erro verificarParticipacao:", error);
+    return false;
+  }
+};
+
+// ====================== CONTAR PARTICIPANTES ==========================
+const countParticipantesByGroup = async (idGrupo) => {
+  try {
+    const sql = `
+      SELECT COUNT(*) as total 
+      FROM tbl_usuario_grupo 
+      WHERE id_grupo = ?
+    `;
+    const result = await prisma.$queryRawUnsafe(sql, idGrupo);
+    return result.length > 0 ? result[0].total : 0;
+  } catch (error) {
+    console.error("❌ Erro countParticipantesByGroup:", error);
+    return 0;
+  }
+};
+
+// ====================== LISTAR GRUPOS QUE O USUÁRIO PARTICIPA ==========================
 const selectGroupsByUser = async (idUsuario) => {
   try {
     const sql = `
       SELECT g.*
-      FROM tbl_usuario_grupo AS ug
-      INNER JOIN tbl_grupo AS g ON g.id_grupo = ug.id_grupo
-      WHERE ug.id_usuario = ${idUsuario};
+      FROM tbl_usuario_grupo ug
+      INNER JOIN tbl_grupo g ON g.id_grupo = ug.id_grupo
+      WHERE ug.id_usuario = ?
     `;
-    const result = await prisma.$queryRawUnsafe(sql);
+    const result = await prisma.$queryRawUnsafe(sql, idUsuario);
     return result;
   } catch (error) {
-    console.error("Erro selectGroupsByUser:", error);
-    return false;
+    console.error("❌ Erro selectGroupsByUser:", error);
+    return [];
   }
 };
 
-// ===============================================================
-// Listar grupos criados pelo usuário
-// ===============================================================
+// ====================== LISTAR GRUPOS CRIADOS PELO USUÁRIO ==========================
 const selectGroupsCreatedByUser = async (idUsuario) => {
   try {
     const sql = `
       SELECT *
       FROM tbl_grupo
-      WHERE id_usuario = ${idUsuario};
+      WHERE id_usuario = ?
     `;
-    const result = await prisma.$queryRawUnsafe(sql);
+    const result = await prisma.$queryRawUnsafe(sql, idUsuario);
     return result;
   } catch (error) {
-    console.error("Erro selectGroupsCreatedByUser:", error);
-    return false;
+    console.error("❌ Erro selectGroupsCreatedByUser:", error);
+    return [];
   }
 };
 
-// ===============================================================
-// Contar participantes de um grupo
-// ===============================================================
-const countParticipantesByGroup = async (idGrupo) => {
-  try {
-    const sql = `
-      SELECT COUNT(*) AS total
-      FROM tbl_usuario_grupo
-      WHERE id_grupo = ${idGrupo};
-    `;
-    const result = await prisma.$queryRawUnsafe(sql);
-    return result[0]?.total || 0;
-  } catch (error) {
-    console.error("Erro countParticipantesByGroup:", error);
-    return 0;
-  }
-};
-
-// ===============================================================
-// Função auxiliar genérica
-// ===============================================================
-const executarConsulta = async (sql) => {
-  try {
-    const result = await prisma.$queryRawUnsafe(sql);
-    return result;
-  } catch (error) {
-    console.error("Erro executarConsulta:", error);
-    return false;
-  }
-};
-
+// ===========================================================
 module.exports = {
   insertUsuarioGrupo,
   selectAllUsuariosGrupos,
   selectUsuarioGrupoById,
   updateUsuarioGrupo,
   deleteUsuarioGrupo,
-  selectGroupsByUser,
-  selectGroupsCreatedByUser,
+  deleteUsuarioGrupoByIds,
+  verificarParticipacao,
   countParticipantesByGroup,
-  executarConsulta
+  selectGroupsByUser,
+  selectGroupsCreatedByUser
 };
