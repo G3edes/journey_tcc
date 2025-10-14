@@ -90,18 +90,21 @@ const atualizarUsuarioGrupo = async (id, dados, contentType) => {
 // listar grupos criados por um usuário
 const listarGruposCriadosPorUsuario = async (idUsuario) => {
   try {
-    const grupos = await usuarioGrupoDAO.selectGroupsCreatedByUser(idUsuario)
+    console.log(`→ listarGruposCriadosPorUsuario: pedido para idUsuario = ${idUsuario}`);
+    const grupos = await usuarioGrupoDAO.selectGroupsCreatedByUser(idUsuario);
+    console.log(`← listarGruposCriadosPorUsuario: encontrado ${Array.isArray(grupos) ? grupos.length : 0} grupos`);
     return {
       status: true,
       status_code: 200,
-      itens: grupos.length,
-      grupos
+      itens: Array.isArray(grupos) ? grupos.length : 0,
+      grupos: Array.isArray(grupos) ? grupos : []
     }
   } catch (error) {
     console.error("Erro listarGruposCriadosPorUsuario:", error)
     return { status: false, status_code: 500, message: "Erro interno no servidor" }
   }
-}
+};
+
 
 // Listar grupos que o usuário participa
 const listarGruposPorUsuario = async (idUsuario) => {

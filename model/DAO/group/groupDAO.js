@@ -7,34 +7,34 @@
 const { PrismaClient } = require('@prisma/client')
 const prisma = new PrismaClient()
 
-// Inserir grupo
-const insertGrupo = async (dados) => {
+const insertGrupo = async (g) => {
   try {
-    // CORREÇÃO: Removido o comentário de JS dentro do template literal SQL (` `)
-    const result = await prisma.$queryRaw`
-      CALL inserir_grupo( 
-        ${dados.nome},
-        ${dados.limite_membros},
-        ${dados.descricao},
-        ${dados.imagem || 'default_group_image.png'},
-        ${dados.id_usuario} ,
-        ${dados.id_area}
-      )
+    const sql = `
+      INSERT INTO tbl_grupo (nome, limite_membros, descricao, imagem, id_area, id_usuario)
+      VALUES (?, ?, ?, ?, ?, ?)
     `
 
-    // O MySQL retorna a procedure como array de arrays. O seu resultado pode variar.
-    // Presumo que a stored procedure retorne o número de linhas afetadas.
-    const linhasAfetadas = result[0][0]?.linhas_afetadas || 0
+    const affected = await prisma.$executeRawUnsafe(
+      sql,
+      g.nome,
+      g.limite_membros,
+      g.descricao,
+      g.imagem,
+      g.id_area,
+      g.id_usuario
+    )
 
-    if (linhasAfetadas > 0) {
-      return linhasAfetadas
-    } else {
-      return { status: false, message: 'Erro ao inserir no Banco de Dados.' } 
+    if (!affected || affected <= 0) {
+      console.warn("insertGrupo: nenhuma linha afetada");
+      return { ok: false, affected }
     }
 
+    const rows = await prisma.$queryRawUnsafe("SELECT LAST_INSERT_ID() as insertId");
+    const insertId = Array.isArray(rows) && rows.length > 0 ? (rows[0].insertId ?? rows[0].LAST_INSERT_ID) : null
+
+    return { ok: true, affected, insertId }
   } catch (error) {
-    // Mantido o console.error para debugging, é útil.
-    console.error("inserirGrupo erro:", error)
+    console.error("Erro insertGrupo:", error)
     return false
   }
 }
