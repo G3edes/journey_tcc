@@ -386,93 +386,101 @@ app.put('/v1/journey/usuario-grupo/:id', cors(), bodyParserJSON, async (req, res
  * 
  *******************************************************************************************************************/
 
-// ✅ Verificar status do usuário no grupo
-app.get('/v1/journey/group/:id/status', cors(), async (req, res) => {
-  try {
-    const id_grupo = parseInt(req.params.id)
-    const id_usuario = parseInt(req.query.userId)
+app.get('/v1/journey/group/:id/status', cors(), async function (request, response) {
+    try {
+        let id_grupo = parseInt(request.params.id)
+        let id_usuario = parseInt(request.query.userId)
 
-    if (!id_usuario)
-      return res.status(400).json({ status: false, message: "userId é obrigatório" })
+        if (!id_usuario)
+            return response.status(400).json({ status: false, message: "userId é obrigatório" })
 
-    // Verifica se o usuário é o criador
-    const grupoRes = await controllerGroup.buscarGrupoPorId(id_grupo)
-    if (grupoRes && grupoRes.grupo) {
-      const grupo = grupoRes.grupo
-      if (parseInt(grupo.id_usuario) === id_usuario) {
-        return res.status(200).json({ status: true, relation: 'criador', grupo })
-      }
+        let grupoRes = await controllerGroup.buscarGrupoPorId(id_grupo)
+
+        if (grupoRes && grupoRes.grupo) {
+            let grupo = grupoRes.grupo
+            if (parseInt(grupo.id_usuario) === id_usuario) {
+                return response.status(200).json({ status: true, relation: 'criador', grupo })
+            }
+        }
+
+        let participa = await controllerUsuarioGrupo.verificarParticipacao(id_usuario, id_grupo)
+        if (participa && participa.participa) {
+            return response.status(200).json({ status: true, relation: 'participante' })
+        }
+
+        return response.status(200).json({ status: true, relation: 'nenhum' })
+    } catch (error) {
+        console.error("Erro /group/:id/status:", error)
+        response.status(500).json({ status: false, message: "Erro interno no servidor" })
     }
-
-    // Verifica se é participante
-    const participa = await controllerUsuarioGrupo.verificarParticipacao(id_usuario, id_grupo)
-    if (participa && participa.participa) {
-      return res.status(200).json({ status: true, relation: 'participante' })
-    }
-
-    // Não participa
-    return res.status(200).json({ status: true, relation: 'nenhum' })
-  } catch (err) {
-    console.error("Erro /group/:id/status:", err)
-    res.status(500).json({ status: false, message: "Erro interno no servidor" })
-  }
 })
 
 // ✅ Entrar no grupo
-app.post('/v1/journey/group/:id/join', cors(), bodyParserJSON, async (req, res) => {
-  try {
-    const id_grupo = parseInt(req.params.id)
-    const { id_usuario } = req.body
+app.post('/v1/journey/group/:id/join', cors(), bodyParserJSON, async function (request, response) {
+    try {
+        let id_grupo = parseInt(request.params.id)
+        let { id_usuario } = request.body
 
-    if (!id_usuario)
-      return res.status(400).json({ status: false, message: "id_usuario é obrigatório" })
+        if (!id_usuario)
+            return response.status(400).json({ status: false, message: "id_usuario é obrigatório" })
 
-    const payload = { id_usuario, id_grupo }
-    const result = await controllerUsuarioGrupo.inserirUsuarioGrupo(payload, 'application/json')
-    res.status(result.status_code || 201).json(result)
-  } catch (err) {
-    console.error("Erro /group/:id/join:", err)
-    res.status(500).json({ status: false, message: "Erro interno" })
-  }
+        let payload = { id_usuario, id_grupo }
+        let result = await controllerUsuarioGrupo.inserirUsuarioGrupo(payload, 'application/json')
+
+        response.status(result.status_code || 201)
+        response.json(result)
+    } catch (error) {
+        console.error("Erro /group/:id/join:", error)
+        response.status(500).json({ status: false, message: "Erro interno" })
+    }
 })
 
 // ✅ Sair do grupo
-app.delete('/v1/journey/group/:id/leave', cors(), bodyParserJSON, async (req, res) => {
-  try {
-    const id_grupo = parseInt(req.params.id)
-    const { id_usuario } = req.body
+app.delete('/v1/journey/group/:id/leave', cors(), bodyParserJSON, async function (request, response) {
+    try {
+        let id_grupo = parseInt(request.params.id)
+        let { id_usuario } = request.body
 
-    if (!id_usuario)
-      return res.status(400).json({ status: false, message: "id_usuario é obrigatório" })
+        if (!id_usuario)
+            return response.status(400).json({ status: false, message: "id_usuario é obrigatório" })
 
-    const result = await controllerUsuarioGrupo.sairDoGrupo(id_usuario, id_grupo)
-    res.status(result.status_code || 200).json(result)
-  } catch (err) {
-    console.error("Erro /group/:id/leave:", err)
-    res.status(500).json({ status: false, message: "Erro interno" })
-  }
+        let result = await controllerUsuarioGrupo.sairDoGrupo(id_usuario, id_grupo)
+
+        response.status(result.status_code || 200)
+        response.json(result)
+    } catch (error) {
+        console.error("Erro /group/:id/leave:", error)
+        response.status(500).json({ status: false, message: "Erro interno" })
+    }
 })
 
 // ✅ Listar grupos que o usuário participa
-app.get('/v1/journey/usuario/:id/grupos-participando', cors(), async (req, res) => {
-  const id_usuario = parseInt(req.params.id)
-  const result = await controllerUsuarioGrupo.listarGruposPorUsuario(id_usuario)
-  res.status(result.status_code || 200).json(result)
+app.get('/v1/journey/usuario/:id/grupos-participando', cors(), async function (request, response) {
+    let id_usuario = parseInt(request.params.id)
+    let result = await controllerUsuarioGrupo.listarGruposPorUsuario(id_usuario)
+
+    response.status(result.status_code || 200)
+    response.json(result)
 })
 
 // ✅ Listar grupos criados por um usuário
-app.get('/v1/journey/usuario/:id/grupos-criados', cors(), async (req, res) => {
-  const id_usuario = parseInt(req.params.id)
-  const result = await controllerUsuarioGrupo.listarGruposCriadosPorUsuario(id_usuario)
-  res.status(result.status_code || 200).json(result)
+app.get('/v1/journey/usuario/:id/grupos-criados', cors(), async function (request, response) {
+    let id_usuario = parseInt(request.params.id)
+    let result = await controllerUsuarioGrupo.listarGruposCriadosPorUsuario(id_usuario)
+
+    response.status(result.status_code || 200)
+    response.json(result)
 })
 
-// ✅ Contar participantes
-app.get('/v1/journey/group/:id/participantes', cors(), async (req, res) => {
-  const id = req.params.id
-  const result = await controllerUsuarioGrupo.contarParticipantes(id)
-  res.status(result.status_code).json(result)
+// ✅ Contar participantes do grupo
+app.get('/v1/journey/group/:id/participantes', cors(), async function (request, response) {
+    let id = parseInt(request.params.id)
+    let result = await controllerUsuarioGrupo.contarParticipantes(id)
+
+    response.status(result.status_code || 200)
+    response.json(result)
 })
+
 
 /*******************************************************************************************************************
  * 
