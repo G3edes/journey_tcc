@@ -481,6 +481,57 @@ app.get('/v1/journey/group/:id/participantes', cors(), async function (request, 
     response.json(result)
 })
 
+/*******************************************************************************************************************
+ * 
+ *                                  CALENDARIO
+ * 
+ *******************************************************************************************************************/
+
+// POST - Inserir nova mensagem
+app.post('/v1/journey/mensagem', cors(), bodyParserJSON, async function (request, response) {
+    let contentType = request.headers['content-type']
+    let dadosBody = request.body
+
+    let result = await controllerMensagens.inserirMensagem(dadosBody, contentType)
+    response.status(result.status_code || 500)
+    response.json(result)
+})
+
+  // GET - Listar todas as mensagens
+app.get('/v1/journey/mensagem', cors(), async function (request, response) {
+    let result = await controllerMensagens.listarMensagens()
+    response.status(result.status_code || 500)
+    response.json(result)
+})
+
+  // GET - Buscar mensagem por ID
+app.get('/v1/journey/mensagem/:id', cors(), async function (request, response) {
+    let id = request.params.id
+    let result = await controllerMensagens.buscarMensagem(id)
+    response.status(result.status_code || 500)
+    response.json(result)
+})
+
+  // PUT - Atualizar mensagem
+app.put('/v1/journey/mensagem/:id', cors(), bodyParserJSON, async function (request, response) {
+    let contentType = request.headers['content-type']
+    let id = request.params.id
+    let dadosBody = request.body
+
+    let result = await controllerMensagens.atualizarMensagem(id, dadosBody, contentType)
+    response.status(result.status_code || 500)
+    response.json(result)
+})
+
+  // DELETE - Excluir mensagem
+app.delete('/v1/journey/mensagem/:id', cors(), async function (request, response) {
+    let id = request.params.id
+    let result = await controllerMensagens.excluirMensagem(id)
+    response.status(result.status_code || 500)
+    response.json(result)
+})
+
+
 
 /*******************************************************************************************************************
  * 
