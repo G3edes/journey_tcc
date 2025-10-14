@@ -474,6 +474,57 @@ app.get('/v1/journey/group/:id/participantes', cors(), async (req, res) => {
   res.status(result.status_code).json(result)
 })
 
+/*******************************************************************************************************************
+ * 
+ *                                  CALENDARIO
+ * 
+ *******************************************************************************************************************/
+const controllerCalendario = require('./controller/calendario/controllerCalendario')
+
+app.post('/v1/journey/calendario', cors(), bodyParserJSON, async function (request, response) {
+    let contentType = request.headers['content-type']
+    let dadosBody = request.body
+
+    let result = await controllerCalendario.inserirCalendario(dadosBody, contentType)
+    response.status(result.status_code)
+    response.json(result)
+})
+
+// GET - Listar todos os calendários
+app.get('/v1/journey/calendario', cors(), async function (request, response) {
+    let result = await controllerCalendario.listarCalendario()
+    response.status(result.status_code)
+    response.json(result)
+})
+
+// GET - Buscar calendário por ID
+app.get('/v1/journey/calendario/:id', cors(), async function (request, response) {
+    let id = request.params.id
+    let result = await controllerCalendario.buscarCalendario(id)
+    response.status(result.status_code)
+    response.json(result)
+})
+
+// DELETE - Excluir calendário
+app.delete('/v1/journey/calendario/:id', cors(), async function (request, response) {
+    let id = request.params.id
+    let result = await controllerCalendario.excluirCalendario(id)
+
+    response.status(result.status_code)
+    response.json(result)
+})
+
+// PUT - Atualizar calendário
+app.put('/v1/journey/calendario/:id', cors(), bodyParserJSON, async function (request, response) {
+    let contentType = request.headers['content-type']
+    let id = request.params.id
+    let dadosBody = request.body
+
+    let result = await controllerCalendario.atualizarCalendario(id, dadosBody, contentType)
+    response.status(result.status_code)
+    response.json(result)
+})
+}
 
 const PORT = process.env.PORT || 8080;
 app.listen(PORT, () => {
