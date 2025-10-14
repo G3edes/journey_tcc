@@ -524,7 +524,7 @@ app.put('/v1/journey/calendario/:id', cors(), bodyParserJSON, async function (re
     response.status(result.status_code)
     response.json(result)
 })
-}
+
 
 const PORT = process.env.PORT || 8080;
 app.listen(PORT, () => {
