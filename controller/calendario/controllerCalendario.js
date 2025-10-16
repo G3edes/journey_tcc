@@ -9,10 +9,9 @@ const inserirCalendario = async (calendario, contentType) => {
 
             if (calendario.nome_evento == '' || calendario.nome_evento == undefined || calendario.nome_evento == null || calendario.nome_evento.length > 100 ||
                 calendario.data_evento == '' || calendario.data_evento == undefined || calendario.data_evento == null ||
-                calendario.hora_evento == '' || calendario.hora_evento == undefined || calendario.hora_evento == null ||
                 calendario.descricao == '' || calendario.descricao == undefined || calendario.descricao == null ||
                 calendario.link == '' || calendario.link == undefined || calendario.link == null || calendario.link.length > 500 ||
-                calendario.id_usuario == '' || calendario.id_usuario == undefined || calendario.id_usuario == null || isNaN(calendario.id_usuario)
+                calendario.id_grupo == '' || calendario.id_grupo == undefined || calendario.id_grupo == null || isNaN(calendario.id_grupo)
             ) {
                 return message.ERROR_REQUIRED_FIELDS
             } else {
@@ -38,10 +37,9 @@ const atualizarCalendario = async (id, calendario, contentType) => {
         if (contentType == 'application/json') {
             if (calendario.nome_evento == '' || calendario.nome_evento == undefined || calendario.nome_evento == null || calendario.nome_evento.length > 100 ||
                 calendario.data_evento == '' || calendario.data_evento == undefined || calendario.data_evento == null ||
-                calendario.hora_evento == '' || calendario.hora_evento == undefined || calendario.hora_evento == null ||
                 calendario.descricao == '' || calendario.descricao == undefined || calendario.descricao == null ||
                 calendario.link == '' || calendario.link == undefined || calendario.link == null || calendario.link.length > 500 ||
-                calendario.id_usuario == '' || calendario.id_usuario == undefined || calendario.id_usuario == null || isNaN(calendario.id_usuario)
+                calendario.id_grupo == '' || calendario.id_grupo == undefined || calendario.id_grupo == null || isNaN(calendario.id_grupo)
             ) {
                 return message.ERROR_REQUIRED_FIELDS
             }

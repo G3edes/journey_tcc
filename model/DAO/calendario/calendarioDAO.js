@@ -1,91 +1,98 @@
 /***************************************************************************************************************************
  * OBJETIVO: Criar a comunicação com o Banco de Dados para fazer o CRUD de calendario
- * DATA: 16/10/2025
- * AUTOR: Gabriel Silva Guedes
- * Versão: 3.0
+ * DATA: 07/11/2025
+ * AUTOR: Hiago Ortolan (ajuste solicitado)
+ * Versão: 2.0
  **************************************************************************************************************************/
 
-// Import da biblioteca do prisma client para executar os scripts SQL
 const { PrismaClient } = require('@prisma/client')
-
-// Instancia o Prisma Client
 const prisma = new PrismaClient()
-// supondo que no schema.prisma exista: model tbl_calendario { id_calendario Int @id @default(autoincrement()) ... }
+
+// Inserir calendário
 const inserirCalendario = async (dados) => {
-    try {
-      const created = await prisma.tbl_calendario.create({
+
+  try {
+    const created = await prisma.calendario.create({
         data: {
           nome_evento: dados.nome_evento,
-          data_evento: dados.data_evento,
-          hora_evento: dados.hora_evento,
-          descricao: dados.descricao
+          data_evento: new Date(dados.data_evento), // concatena data + hora
+          descricao: dados.descricao,
+          link: dados.link ?? null,
+          id_grupo: Number(dados.id_grupo)
         }
       })
-      return created ? true : false
-    } catch (error) {
-      console.error('Erro ao inserir calendário:', error)
-      return false
-    }
+    return created ? true : false
+  } catch (error) {
+    console.error('Erro ao inserir calendário:', error)
+    return false
   }
-  
-const updateCalendario = async (dados) => {
-    try {
-      const updated = await prisma.tbl_calendario.update({
-        where: { id_calendario: Number(dados.id_calendario) },
-        data: {
-          nome_evento: dados.nome_evento,
-          data_evento: dados.data_evento,
-          hora_evento: dados.hora_evento,
-          descricao: dados.descricao
-        }
-      })
-      return updated ? true : false
-    } catch (error) {
-      console.error('Erro ao atualizar calendário:', error)
-      return false
-    }
-}
-  
-const deleteCalendario = async (id) => {
-    try {
-      const deleted = await prisma.tbl_calendario.delete({
-        where: { id_calendario: Number(id) }
-      })
-      return deleted ? true : false
-    } catch (error) {
-      console.error('Erro ao deletar calendário:', error)
-      return false
-    }
-}
-  
-const selectAllCalendario = async () => {
-    try {
-      const rows = await prisma.tbl_calendario.findMany({
-        orderBy: { data_evento: 'desc' }
-      })
-      return rows.length ? rows : false
-    } catch (error) {
-      console.error('Erro ao listar calendários:', error)
-      return false
-    }
-}
-  
-const selectCalendarioById = async (id) => {
-    try {
-      const row = await prisma.tbl_calendario.findUnique({
-        where: { id_calendario: Number(id) }
-      })
-      return row || false
-    } catch (error) {
-      console.error('Erro ao buscar calendário por ID:', error)
-      return false
-    }
 }
 
-module.exports={
-    selectAllCalendario,
-    selectCalendarioById,
-    deleteCalendario,
-    updateCalendario,
-    inserirCalendario
+// Atualizar calendário
+const updateCalendario = async (dados) => {
+  try {
+    const updated = await prisma.calendario.update({
+      where: { id_calendario: Number(dados.id_calendario) },
+      data: {
+        nome_evento: dados.nome_evento,
+        data_evento: new Date(`${dados.data_evento}T${dados.hora_evento}`),
+        descricao: dados.descricao,
+        link: dados.link,
+        id_grupo: Number(dados.id_grupo)
+      }
+    })
+    return updated ? true : false
+  } catch (error) {
+    console.error('Erro ao atualizar calendário:', error)
+    return false
+  }
+}
+
+// Deletar calendário
+const deleteCalendario = async (id) => {
+  try {
+    const deleted = await prisma.calendario.delete({
+      where: { id_calendario: Number(id) }
+    })
+    return deleted ? true : false
+  } catch (error) {
+    console.error('Erro ao deletar calendário:', error)
+    return false
+  }
+}
+
+// Listar todos os calendários
+const selectAllCalendario = async () => {
+  try {
+    const result = await prisma.calendario.findMany({
+      orderBy: { data_evento: 'desc' },
+      include: { grupo: true } // inclui dados do grupo
+    })
+    return result.length > 0 ? result : false
+  } catch (error) {
+    console.error('Erro ao listar calendários:', error)
+    return false
+  }
+}
+
+// Buscar calendário por ID
+const selectCalendarioById = async (id) => {
+  try {
+    const result = await prisma.calendario.findUnique({
+      where: { id_calendario: Number(id) },
+      include: { grupo: true }
+    })
+    return result || false
+  } catch (error) {
+    console.error('Erro ao buscar calendário por ID:', error)
+    return false
+  }
+}
+
+module.exports = {
+  inserirCalendario,
+  updateCalendario,
+  deleteCalendario,
+  selectAllCalendario,
+  selectCalendarioById
 }

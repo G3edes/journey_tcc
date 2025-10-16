@@ -6,3 +6,66 @@ datasource db {
   provider = "mysql"
   url      = env("DATABASE_URL")
 }
+
+// ------------------------
+// Modelo Usuario
+// ------------------------
+model Usuario {
+  id_usuario      Int         @id @default(autoincrement())
+  nome_completo   String
+  email           String      @unique
+  senha           String
+  data_nascimento DateTime?
+  foto_perfil     String?
+  descricao       String?
+  tipo_usuario    String
+  grupos          Grupo[]     // relação 1:N com Grupo
+
+  @@map("tbl_usuario")
+}
+
+// ------------------------
+// Modelo Area
+// ------------------------
+model Area {
+  id_area    Int     @id @default(autoincrement())
+  nome_area  String
+  grupos     Grupo[] // relação 1:N com Grupo
+
+  @@map("tbl_area")
+}
+
+// ------------------------
+// Modelo Grupo
+// ------------------------
+model Grupo {
+  id_grupo       Int           @id @default(autoincrement())
+  nome           String
+  limite_membros Int
+  descricao      String?
+  imagem         String?
+  id_area        Int
+  id_usuario     Int
+
+  usuario        Usuario       @relation(fields: [id_usuario], references: [id_usuario])
+  area           Area          @relation(fields: [id_area], references: [id_area])
+  calendarios    Calendario[]  // relação 1:N com Calendario
+
+  @@map("tbl_grupo")
+}
+
+// ------------------------
+// Modelo Calendario
+// ------------------------
+model Calendario {
+  id_calendario Int      @id @default(autoincrement())
+  nome_evento   String   @db.VarChar(100)
+  data_evento   DateTime
+  descricao     String
+  link          String?  @db.VarChar(500)
+  id_grupo      Int
+
+  grupo Grupo @relation(fields: [id_grupo], references: [id_grupo])
+
+  @@map("tbl_calendario")
+}
