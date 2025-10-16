@@ -58,23 +58,6 @@ app.use("/uploads", express.static("uploads"));
 
 app.use(express.json())
 
-// npm install multer
-const multer = require("multer");
-const path = require("path");
-
-// Configura o destino e o nome do arquivo salvo
-const storage = multer.diskStorage({
-  destination: (req, file, cb) => {
-    cb(null, "uploads/"); // cria a pasta "uploads" se ainda não existir
-  },
-  filename: (req, file, cb) => {
-    const uniqueSuffix = Date.now() + "-" + Math.round(Math.random() * 1e9);
-    const ext = path.extname(file.originalname);
-    cb(null, file.fieldname + "-" + uniqueSuffix + ext);
-  },
-});
-
-const upload = multer({ storage: storage });
 
 // aumenta o limite de tamanho do corpo das requisições
 app.use(express.json({ limit: "10mb" }));
@@ -155,26 +138,7 @@ app.delete('/v1/journey/usuario/:id', cors(), async function (request, response)
 })
 
 
-// Atualizar usuário com possível upload de imagem
-app.put("/v1/journey/usuario/:id", cors(), upload.single("foto_perfil"), async function (request, response) {
-  try {
-    const id = request.params.id;
-    const contentType = request.headers["content-type"];
-    let dadosBody = request.body;
 
-    // Se veio imagem, adiciona o caminho do arquivo salvo
-    if (request.file) {
-      const caminhoImagem = `/uploads/${request.file.filename}`;
-      dadosBody.foto_perfil = caminhoImagem;
-    }
-
-    const result = await controllerUser.atualizarUsuario(id, dadosBody, contentType);
-    response.status(result.status_code).json(result);
-  } catch (error) {
-    console.error("Erro ao atualizar usuário:", error);
-    response.status(500).json({ message: "Erro interno ao atualizar usuário" });
-  }
-});
 
 app.post('/v1/journey/recuperar-senha', cors(), bodyParserJSON, controllerRecuperarSenha.enviarCodigo);
 app.post('/v1/journey/validar-codigo', cors(), bodyParserJSON, controllerRecuperarSenha.validarCodigo);

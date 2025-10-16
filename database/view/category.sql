@@ -1,7 +1,4 @@
 
--- =============================
--- VIEWS
--- =============================
 
 -- View para listar todas as categorias
 CREATE VIEW vw_categorias AS
