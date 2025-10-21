@@ -1,4 +1,4 @@
-const mensagemDAO = require('../../model/DAO/mensagem/mensagemDAO.js')
+const mensagemDAO = require('../../model/DAO/mensagens/mensagensDAO.js')
 const message = require('../../module/config.js')
 
 // Inserir nova mensagem

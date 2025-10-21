@@ -464,10 +464,10 @@ app.get('/v1/journey/group/:id/participantes', cors(), async function (request, 
 
 /*******************************************************************************************************************
  * 
- *                                  CALENDARIO
+ *                                  Mensagem
  * 
  *******************************************************************************************************************/
-
+/*
 // POST - Inserir nova mensagem
 app.post('/v1/journey/mensagem', cors(), bodyParserJSON, async function (request, response) {
     let contentType = request.headers['content-type']
@@ -511,7 +511,7 @@ app.delete('/v1/journey/mensagem/:id', cors(), async function (request, response
     response.status(result.status_code || 500)
     response.json(result)
 })
-
+*/
 
 
 /*******************************************************************************************************************
@@ -563,6 +563,56 @@ app.put('/v1/journey/calendario/:id', cors(), bodyParserJSON, async function (re
     let result = await controllerCalendario.atualizarCalendario(id, dadosBody, contentType)
     response.status(result.status_code)
     response.json(result)
+})
+/*******************************************************************************************************************
+ * 
+ *                                  CHAT
+ * 
+ *******************************************************************************************************************/
+const controllerChat = require('./controller/chat/controllerChat')
+
+// POST - Inserir novo chat
+app.post('/v1/journey/chat', cors(), bodyParserJSON, async function (request, response) {
+  let contentType = request.headers['content-type']
+  let dadosBody = request.body
+
+  let result = await controllerChat.inserirChat(dadosBody, contentType)
+  response.status(result.status_code || 500)
+  response.json(result)
+})
+
+// GET - Listar todos os chats
+app.get('/v1/journey/chat', cors(), async function (request, response) {
+  let result = await controllerChat.listarChats()
+  response.status(result.status_code || 500)
+  response.json(result)
+})
+
+// GET - Buscar chat por ID
+app.get('/v1/journey/chat/:id', cors(), async function (request, response) {
+  let id = request.params.id
+  let result = await controllerChat.buscarChatPorId(id)
+  response.status(result.status_code || 500)
+  response.json(result)
+})
+
+// PUT - Atualizar chat
+app.put('/v1/journey/chat/:id', cors(), bodyParserJSON, async function (request, response) {
+  let contentType = request.headers['content-type']
+  let id = request.params.id
+  let dadosBody = request.body
+
+  let result = await controllerChat.atualizarChat(id, dadosBody, contentType)
+  response.status(result.status_code || 500)
+  response.json(result)
+})
+
+// DELETE - Excluir chat
+app.delete('/v1/journey/chat/:id', cors(), async function (request, response) {
+  let id = request.params.id
+  let result = await controllerChat.excluirChat(id)
+  response.status(result.status_code || 500)
+  response.json(result)
 })
 
 /********************************************************************************************************************
