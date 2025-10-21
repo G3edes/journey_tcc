@@ -1,26 +1,23 @@
-const DAOMensagem = require('../../model/DAO/mensagens/mensagensDAO.js')
+const DAOChatRoom = require('../../model/DAO/chat/chatRoomDAO.js')
 const message = require('../../module/config.js')
 
-// Inserir mensagem
-const inserirMensagem = async (mensagem, contentType) => {
+// Inserir sala
+const inserirChatRoom = async (sala, contentType) => {
   try {
     if (contentType && contentType.includes('application/json')) {
-
       if (
-        mensagem.id_chat_room == '' || mensagem.id_chat_room == undefined || mensagem.id_chat_room == null ||
-        mensagem.id_usuario == '' || mensagem.id_usuario == undefined || mensagem.id_usuario == null ||
-        mensagem.conteudo == '' || mensagem.conteudo == undefined || mensagem.conteudo == null
+        sala.tipo == '' || sala.tipo == undefined || sala.tipo == null ||
+        (sala.tipo !== 'privado' && sala.tipo !== 'grupo')
       ) {
         return message.ERROR_REQUIRED_FIELDS
       } else {
-        let result = await DAOMensagem.insertMensagem(mensagem)
+        let result = await DAOChatRoom.insertChatRoom(sala)
         if (result) {
           return message.SUCESS_CREATED_ITEM
         } else {
           return message.ERROR_INTERNAL_SERVER_MODEL
         }
       }
-
     } else {
       return message.ERROR_CONTENT_TYPE
     }
@@ -30,18 +27,21 @@ const inserirMensagem = async (mensagem, contentType) => {
   }
 }
 
-// Atualizar mensagem
-const atualizarMensagem = async (id, mensagem, contentType) => {
+// Atualizar (pode ser opcional dependendo da regra)
+const atualizarChatRoom = async (id, sala, contentType) => {
   try {
     if (contentType && contentType.includes('application/json')) {
-
-      if (mensagem.conteudo == '' || mensagem.conteudo == undefined || mensagem.conteudo == null) {
+      if (
+        sala.tipo == '' || sala.tipo == undefined || sala.tipo == null ||
+        (sala.tipo !== 'privado' && sala.tipo !== 'grupo')
+      ) {
         return message.ERROR_REQUIRED_FIELDS
       }
 
-      let existente = await DAOMensagem.selectMensagemById(id)
+      let existente = await DAOChatRoom.selectChatRoomById(id)
       if (existente && typeof existente === 'object') {
-        let result = await DAOMensagem.updateMensagem(id, mensagem)
+        // atualiza apenas tipo e id_grupo
+        let result = await DAOChatRoom.updateChatRoom(id, sala)
         if (result) {
           return message.SUCESS_UPDATED_ITEM
         } else {
@@ -50,7 +50,6 @@ const atualizarMensagem = async (id, mensagem, contentType) => {
       } else {
         return message.ERROR_NOT_FOUND
       }
-
     } else {
       return message.ERROR_CONTENT_TYPE
     }
@@ -60,16 +59,14 @@ const atualizarMensagem = async (id, mensagem, contentType) => {
   }
 }
 
-// Excluir mensagem
-const excluirMensagem = async (id) => {
+// Excluir sala
+const excluirChatRoom = async (id) => {
   try {
-    if (!id || isNaN(id) || id <= 0) {
-      return message.ERROR_REQUIRED_FIELDS
-    }
+    if (!id || isNaN(id) || id <= 0) return message.ERROR_REQUIRED_FIELDS
 
-    let existente = await DAOMensagem.selectMensagemById(id)
+    let existente = await DAOChatRoom.selectChatRoomById(id)
     if (existente && typeof existente === 'object') {
-      let result = await DAOMensagem.deleteMensagem(id)
+      let result = await DAOChatRoom.deleteChatRoom(id)
       if (result) {
         return message.SUCCESS_DELETED_ITEM
       } else {
@@ -78,23 +75,22 @@ const excluirMensagem = async (id) => {
     } else {
       return message.ERROR_NOT_FOUND
     }
-
   } catch (error) {
     console.error(error)
     return message.ERROR_INTERNAL_SERVER_CONTROLLER
   }
 }
 
-// Listar todas as mensagens
-const listarMensagens = async () => {
+// Listar todas
+const listarChatRooms = async () => {
   try {
-    let result = await DAOMensagem.selectAllMensagens()
+    let result = await DAOChatRoom.selectAllChatRooms()
     if (result && typeof result === 'object') {
       return {
         status: true,
         status_code: 200,
         itens: result.length,
-        mensagens: result
+        salas: result
       }
     } else {
       return message.ERROR_NOT_FOUND
@@ -105,19 +101,17 @@ const listarMensagens = async () => {
   }
 }
 
-// Buscar mensagem por ID
-const buscarMensagem = async (id) => {
+// Buscar por ID
+const buscarChatRoom = async (id) => {
   try {
-    if (!id || isNaN(id) || id <= 0) {
-      return message.ERROR_REQUIRED_FIELDS
-    }
+    if (!id || isNaN(id) || id <= 0) return message.ERROR_REQUIRED_FIELDS
 
-    let result = await DAOMensagem.selectMensagemById(id)
+    let result = await DAOChatRoom.selectChatRoomById(id)
     if (result && typeof result === 'object') {
       return {
         status: true,
         status_code: 200,
-        mensagem: result
+        sala: result
       }
     } else {
       return message.ERROR_NOT_FOUND
@@ -129,9 +123,9 @@ const buscarMensagem = async (id) => {
 }
 
 module.exports = {
-  inserirMensagem,
-  listarMensagens,
-  buscarMensagem,
-  excluirMensagem,
-  atualizarMensagem
+  inserirChatRoom,
+  atualizarChatRoom,
+  excluirChatRoom,
+  listarChatRooms,
+  buscarChatRoom
 }

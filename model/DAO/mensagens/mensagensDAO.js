@@ -4,11 +4,11 @@ const prisma = new PrismaClient()
 // Inserir mensagem
 const insertMensagem = async (dados) => {
   try {
-    const result = await prisma.tbl_mensagem.create({
+    const result = await prisma.tbl_mensagens.create({
       data: {
-        id_chat: Number(dados.id_chat),
+        id_chat_room: Number(dados.id_chat_room),
         id_usuario: Number(dados.id_usuario),
-        conteudo: dados.conteudo
+        conteudo: String(dados.conteudo)
       }
     })
     return result ? true : false
@@ -18,10 +18,10 @@ const insertMensagem = async (dados) => {
   }
 }
 
-// Listar todas as mensagens
+// Listar todas as mensagens (ordenadas por envio)
 const selectAllMensagens = async () => {
   try {
-    const result = await prisma.tbl_mensagem.findMany({
+    const result = await prisma.tbl_mensagens.findMany({
       orderBy: { enviado_em: 'asc' }
     })
     return result.length > 0 ? result : false
@@ -34,7 +34,7 @@ const selectAllMensagens = async () => {
 // Buscar mensagem por ID
 const selectMensagemById = async (id) => {
   try {
-    const result = await prisma.tbl_mensagem.findUnique({
+    const result = await prisma.tbl_mensagens.findUnique({
       where: { id_mensagem: Number(id) }
     })
     return result ? result : false
@@ -44,13 +44,27 @@ const selectMensagemById = async (id) => {
   }
 }
 
+// Buscar mensagens por sala (chat_room)
+const selectMensagensByChatRoom = async (id_chat_room) => {
+  try {
+    const result = await prisma.tbl_mensagens.findMany({
+      where: { id_chat_room: Number(id_chat_room) },
+      orderBy: { enviado_em: 'asc' }
+    })
+    return result.length > 0 ? result : false
+  } catch (error) {
+    console.error('Erro selectMensagensByChatRoom:', error)
+    return false
+  }
+}
+
 // Atualizar mensagem
 const updateMensagem = async (id, dados) => {
   try {
-    const result = await prisma.tbl_mensagem.update({
+    const result = await prisma.tbl_mensagens.update({
       where: { id_mensagem: Number(id) },
       data: {
-        conteudo: dados.conteudo
+        conteudo: String(dados.conteudo)
       }
     })
     return result ? true : false
@@ -63,7 +77,7 @@ const updateMensagem = async (id, dados) => {
 // Deletar mensagem
 const deleteMensagem = async (id) => {
   try {
-    const result = await prisma.tbl_mensagem.delete({
+    const result = await prisma.tbl_mensagens.delete({
       where: { id_mensagem: Number(id) }
     })
     return result ? true : false
@@ -77,6 +91,7 @@ module.exports = {
   insertMensagem,
   selectAllMensagens,
   selectMensagemById,
+  selectMensagensByChatRoom,
   updateMensagem,
   deleteMensagem
 }
