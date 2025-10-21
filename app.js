@@ -1,42 +1,45 @@
-/******************************************************************************************************
- * OBJETIVO: Criar uma API para realizar o CRUD do sistema de Eventos                                 *                                                                                  *
- * AUTOR: Gabriel Guedes                                                                              *
- * Versão: 1.0                                                                                        *
- * Observação:                                                                                        *
- *          Para criar a API precisamos instalar:                                                     *
- *                 express             npm install express --save                                     *
- *                 cors                npm install cors --save                                        *
- *                 body-parser         npm install body-parser --save                                 *
- *                                                                                                    *
- *          Para criar a integração com o Banco de Dados precisamos instalar:                         *
- *                 prisma               npm install prisma --save(para fazer a conexão com o BD)      *
- *                 prisma/client        npm install @prisma/client --save (para rodar os scripts SQL) *
- *                                                                                                    *  
- *                                                                                                    *
- *          Após a instalação do prima e do prisma client, devemos :                                  *
- *              npx prisma init                                                                       *
- *                                                                                                    *
- *                                                                                                    *
- *          Você deverá configurar o arquivo .env e o schema.prisma com as credenciais do BD          *
- *          Após essa configuração voce deverá rodar o seguinte comando:                              *
- *                      npx prisma migrate dev                                                        *
- *                                                                                                    *
- *          Instalar o NodeMailer para mandar os emails                                               *
- *                                                                                                    *
- *          npm install nodemailer                                                                    *
- *                                                                                                    *
- *          npm install dotenv                                                                        *
- *                                                                                                    *
- *          Instalação do gitmoji para melhora de commits                                             *                             
- *              npm install -save-dev gitmoji-cli                                                     *                    
- *          Efetuação do commit:                                                                      *
- *              npx gitmoji -c                                                                        *
- *                                                                                                    *
- *          Instalação do bcrypt para criptografia                                                    *
- *              npm install bcryptjs                                                                    *
- *                                                                                                    *
- *          Instalação do jsonwebtoken para gerar token                                               *
- *              npm install jsonwebtoken                                                              *
+/*******************************************************************************************************
+ * OBJETIVO: Criar uma API para realizar o CRUD do sistema de Eventos                                  *                                                                                  *
+ * AUTOR: Gabriel Guedes                                                                               *
+ * Versão: 1.0                                                                                         *
+ * Observação:                                                                                         *
+ *          Para criar a API precisamos instalar:                                                      *
+ *                 express             npm install express --save                                      *
+ *                 cors                npm install cors --save                                         *
+ *                 body-parser         npm install body-parser --save                                  *
+ *                                                                                                     *
+ *          Para criar a integração com o Banco de Dados precisamos instalar:                          *
+ *                 prisma               npm install prisma --save(para fazer a conexão com o BD)       *
+ *                 prisma/client        npm install @prisma/client --save (para rodar os scripts SQL)  *
+ *                                                                                                     *  
+ *                                                                                                     *
+ *          Após a instalação do prima e do prisma client, devemos :                                   *
+ *              npx prisma init                                                                        *
+ *                                                                                                     *
+ *                                                                                                     *
+ *          Você deverá configurar o arquivo .env e o schema.prisma com as credenciais do BD           *
+ *          Após essa configuração voce deverá rodar o seguinte comando:                               *
+ *                      npx prisma migrate dev                                                         *
+ *                                                                                                     *
+ *          Instalar o NodeMailer para mandar os emails                                                *
+ *                                                                                                     *
+ *          npm install nodemailer                                                                     *
+ *                                                                                                     *
+ *          npm install dotenv                                                                         *
+ *                                                                                                     *
+ *          Instalação do gitmoji para melhora de commits                                              *                             
+ *              npm install -save-dev gitmoji-cli                                                      *                    
+ *          Efetuação do commit:                                                                       *
+ *              npx gitmoji -c                                                                         *
+ *                                                                                                     *
+ *          Instalação do bcrypt para criptografia                                                     *
+ *              npm install bcryptjs                                                                   *
+ *                                                                                                     *
+ *          Instalação do jsonwebtoken para gerar token                                                *
+ *              npm install jsonwebtoken                                                               *
+ *                                                                                                     *
+ *          Instalação do socket para gerenciar mensagens                                              *
+ *              npm install socket.io                                                                  *
  ******************************************************************************************************/
 
 const express =require ('express')
@@ -45,6 +48,20 @@ const bodyParser =require ('body-parser')
 
 const bodyParserJSON = bodyParser.json()
 const app = express()
+
+// aumenta o limite de tamanho do corpo das requisições
+app.use(express.json({ limit: "10mb" }));
+app.use(express.urlencoded({ limit: "10mb", extended: true }));
+
+// para se for usar o bodyparser (opcional)
+app.use(bodyParser.json({ limit: "10mb" }));
+app.use(bodyParser.urlencoded({ limit: "10mb", extended: true }));
+
+
+// Corrige erro de BigInt -> JSON
+BigInt.prototype.toJSON = function () {
+  return this.toString();
+};
 
 app.use (cors())
 app.use((req,res,next) =>{
@@ -548,6 +565,80 @@ app.put('/v1/journey/calendario/:id', cors(), bodyParserJSON, async function (re
     response.json(result)
 })
 
+/********************************************************************************************************************
+ *                                                                                                                  *
+ *                                MENSAGEM                                                                          *
+ *                                                                                                                  *
+ ********************************************************************************************************************/
+// Importa o controller de mensagens
+const controllerMensagens = require('./controller/mensagens/controllerMensagens') 
+// Importa o módulo http para criar o servidor
+const http = require('http')
+// Importa a função de inicialização do Socket.IO
+const { initializeSocket, getIo } = require('./socket')
+
+// POST - Inserir nova mensagem (Rota REST tradicional)
+app.post('/v1/journey/mensagem', cors(), bodyParserJSON, async function (request, response) {
+    let contentType = request.headers['content-type']
+    let dadosBody = request.body
+
+    let result = await controllerMensagens.inserirMensagem(dadosBody, contentType)
+    
+    // Lógica opcional: Notifica clientes Socket.IO sobre a inserção via REST
+    if (result.status_code === 201) {
+        try {
+            // Emite a mensagem (objeto completo retornado pela Controller) para todos os clientes
+            getIo().emit('receive_message', result.mensagem);
+        } catch (e) {
+            console.warn("Aviso: Socket.IO não inicializado ou erro ao emitir.");
+        }
+    }
+    
+    response.status(result.status_code || 500)
+    response.json(result)
+})
+
+// GET - Listar todas as mensagens
+app.get('/v1/journey/mensagem', cors(), async function (request, response) {
+    let result = await controllerMensagens.listarMensagens()
+    response.status(result.status_code || 500)
+    response.json(result)
+})
+
+// GET - Buscar mensagem por ID
+app.get('/v1/journey/mensagem/:id', cors(), async function (request, response) {
+    let id = request.params.id
+    let result = await controllerMensagens.buscarMensagemPorId(id)
+    response.status(result.status_code || 500)
+    response.json(result)
+})
+
+// PUT - Atualizar mensagem
+app.put('/v1/journey/mensagem/:id', cors(), bodyParserJSON, async function (request, response) {
+    let contentType = request.headers['content-type']
+    let id = request.params.id
+    let dadosBody = request.body
+
+    let result = await controllerMensagens.atualizarMensagem(id, dadosBody, contentType)
+    response.status(result.status_code || 500)
+    response.json(result)
+})
+
+// DELETE - Excluir mensagem
+app.delete('/v1/journey/mensagem/:id', cors(), async function (request, response) {
+    let id = request.params.id
+    let result = await controllerMensagens.excluirMensagem(id)
+    response.status(result.status_code || 500)
+    response.json(result)
+})
+
+// ... (Resto das suas rotas)
+
+// Cria o servidor HTTP com o seu aplicativo Express
+const server = http.createServer(app) 
+
+// Inicializa o Socket.IO com o servidor HTTP
+initializeSocket(server) 
 
 const PORT = process.env.PORT || 8080;
 app.listen(PORT, () => {
