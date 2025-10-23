@@ -164,10 +164,35 @@ const buscarGrupoPorId = async (id) => {
   }
 }
 
+
+// Buscar grupo + chat_room pelo ID
+const getGrupoComChatRoom = async (id_grupo) => {
+  // Validação do ID
+  const id = Number(id_grupo)
+  if (!id || isNaN(id) || id <= 0) {
+    return { status: false, status_code: 400, message: 'ID de grupo inválido' }
+  }
+
+  try {
+    const grupo = await grupoDAO.getGrupoComChatRoom(id)
+
+    if (!grupo) {
+      return message.ERROR_NOT_FOUND
+    }
+
+    return { status: true, status_code: 200, grupo }
+  } catch (error) {
+    console.error('Erro getGrupoComChatRoom controller:', error)
+    return message.ERROR_INTERNAL_SERVER_CONTROLLER
+  }
+}
+
+
 module.exports = {
   inserirGrupo,
   atualizarGrupo,
   excluirGrupo,
   listarGrupos,
-  buscarGrupoPorId
+  buscarGrupoPorId,
+  getGrupoComChatRoom
 }

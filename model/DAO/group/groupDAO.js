@@ -69,7 +69,25 @@ const updateGrupo = async (dados) => {
     return false
   }
 }
+const getGrupoComChatRoom = async (id_grupo) => {
+  try {
+    const grupo = await prisma.grupo.findUnique({
+      where: { id_grupo: Number(id_grupo) },
+      include: {
+        usuario: {
+          select: { id_usuario: true, nome_completo: true, foto_perfil: true }
+        },
+        area: true,
+        chat_rooms: true  // inclui as salas de chat associadas
+      }
+    })
 
+    return grupo ? grupo : null
+  } catch (error) {
+    console.error('Erro getGrupoComChatRoom:', error)
+    return null
+  }
+}
 // Deletar grupo
 const deleteGrupo = async (id) => {
   try {
@@ -144,7 +162,8 @@ module.exports = {
   deleteGrupo,
   selectAllGrupos,
   selectGrupoById,
-  selectLastId
+  selectLastId,
+  getGrupoComChatRoom
 }
 
 

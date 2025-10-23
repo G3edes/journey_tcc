@@ -34,35 +34,34 @@ model Usuario {
 // Modelo Area
 // ------------------------
 model Area {
-  id_area    Int     @id @default(autoincrement())
-  nome_area  String
-  grupos     Grupo[] // 1:N com Grupo
+  id_area Int    @id @default(autoincrement())
+  area    String // corresponde à coluna real no DB
+  grupos  Grupo[]
 
   @@map("tbl_area")
 }
+
 
 //
 // ------------------------
 // Modelo Grupo
 // ------------------------
 model Grupo {
-  id_grupo       Int           @id @default(autoincrement())
-  nome           String
+  id_grupo      Int      @id @default(autoincrement())
+  nome          String
   limite_membros Int
-  descricao      String?
-  imagem         String?
-  id_area        Int
-  id_usuario     Int
+  descricao     String?
+  imagem        String?
+  id_area       Int
+  id_usuario    Int
 
-  // Relações
-  usuario        Usuario       @relation(fields: [id_usuario], references: [id_usuario])
-  area           Area          @relation(fields: [id_area], references: [id_area])
-  calendarios    Calendario[]  // 1:N com Calendario
-  chat_rooms     ChatRoom[]    // 1:N com ChatRoom (grupo pode ter salas, ex: principal e futuras expansões)
+  usuario       Usuario  @relation(fields: [id_usuario], references: [id_usuario])
+  area          Area     @relation(fields: [id_area], references: [id_area])
+  calendarios   Calendario[]
+  chat_rooms    ChatRoom[] // se tiver relação 1:N
 
   @@map("tbl_grupo")
 }
-
 //
 // ------------------------
 // Modelo Calendario

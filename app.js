@@ -213,6 +213,14 @@ app.delete('/v1/journey/group/:id', cors(), async (request, response) => {
     response.status(result.status_code)
     response.json(result)
 })
+app.get('/v1/journey/group/chat-room/:id', cors(), async function (request, response) {
+    const id_grupo = request.params.id
+    const result = await controllerGroup.getGrupoComChatRoom(id_grupo)
+  
+    response.status(result.status_code)
+    response.json(result)
+  })
+  
 
 /*******************************************************************************************************************
  * 
