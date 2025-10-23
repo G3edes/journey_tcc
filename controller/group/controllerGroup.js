@@ -37,7 +37,7 @@ const inserirGrupo = async (dados, contentType) => {
               id_grupo: resInsert.insertId
             }
             const resChat = await DAOChatRoom.insertChatRoom(sala)
-
+            console.log(resChat)
             if (resChat) {
               return {
                 ...message.SUCESS_CREATED_ITEM,
@@ -175,6 +175,7 @@ const getGrupoComChatRoom = async (id_grupo) => {
 
   try {
     const grupo = await grupoDAO.getGrupoComChatRoom(id)
+    
 
     if (!grupo) {
       return message.ERROR_NOT_FOUND

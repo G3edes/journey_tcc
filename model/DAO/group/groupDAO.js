@@ -71,16 +71,17 @@ const updateGrupo = async (dados) => {
 }
 const getGrupoComChatRoom = async (id_grupo) => {
   try {
-    const grupo = await prisma.grupo.findUnique({
+    const grupo = await prisma.Grupo.findUnique({
       where: { id_grupo: Number(id_grupo) },
       include: {
         usuario: {
           select: { id_usuario: true, nome_completo: true, foto_perfil: true }
         },
         area: true,
-        chat_rooms: true  // inclui as salas de chat associadas
+        chat_room: true  // inclui as salas de chat associadas
       }
     })
+    console.log(grupo)
 
     return grupo ? grupo : null
   } catch (error) {
