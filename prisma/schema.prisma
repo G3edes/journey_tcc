@@ -7,62 +7,58 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-//
 // ------------------------
 // Modelo Usuario
 // ------------------------
 model Usuario {
-  id_usuario      Int               @id @default(autoincrement())
+  id_usuario      Int         @id @default(autoincrement())
   nome_completo   String
-  email           String            @unique
+  email           String      @unique
   senha           String
   data_nascimento DateTime?
   foto_perfil     String?
   descricao       String?
   tipo_usuario    String
 
-  // Relações
-  grupos             Grupo[]           // 1:N com Grupo
-  chat_participantes ChatParticipant[] // 1:N com ChatParticipant
-  mensagens           Mensagem[]       // 1:N com Mensagem
+  grupos          Grupo[]                  // relação 1:N com Grupo
+  calendarios     Calendario[]             // relação 1:N com Calendario
+  chat_participacoes ChatParticipant[]     @relation("ChatRoomParticipantes")
+  mensagens       Mensagem[]               @relation("ChatRoomMensagens")
 
   @@map("tbl_usuario")
 }
 
-//
 // ------------------------
 // Modelo Area
 // ------------------------
 model Area {
-  id_area Int    @id @default(autoincrement())
-  area    String // corresponde à coluna real no DB
-  grupos  Grupo[]
+  id_area    Int     @id @default(autoincrement())
+  nome_area  String
+  grupos     Grupo[] // relação 1:N com Grupo
 
   @@map("tbl_area")
 }
 
-
-//
 // ------------------------
 // Modelo Grupo
 // ------------------------
 model Grupo {
-  id_grupo      Int      @id @default(autoincrement())
-  nome          String
+  id_grupo       Int           @id @default(autoincrement())
+  nome           String
   limite_membros Int
-  descricao     String?
-  imagem        String?
-  id_area       Int
-  id_usuario    Int
+  descricao      String?
+  imagem         String?
+  id_area        Int
+  id_usuario     Int
 
-  usuario       Usuario  @relation(fields: [id_usuario], references: [id_usuario])
-  area          Area     @relation(fields: [id_area], references: [id_area])
-  calendarios   Calendario[]
-  chat_rooms    ChatRoom[] // se tiver relação 1:N
+  usuario        Usuario       @relation(fields: [id_usuario], references: [id_usuario])
+  area           Area          @relation(fields: [id_area], references: [id_area])
+  calendarios    Calendario[]  // relação 1:N com Calendario
+  chat_room      ChatRoom?     // relação 1:1 com ChatRoom
 
   @@map("tbl_grupo")
 }
-//
+
 // ------------------------
 // Modelo Calendario
 // ------------------------
@@ -70,62 +66,64 @@ model Calendario {
   id_calendario Int      @id @default(autoincrement())
   nome_evento   String   @db.VarChar(100)
   data_evento   DateTime
-  descricao     String
+  hora_evento   DateTime
+  descricao     String?
   link          String?  @db.VarChar(500)
+  id_usuario    Int
   id_grupo      Int
 
-  grupo Grupo @relation(fields: [id_grupo], references: [id_grupo])
+  usuario       Usuario  @relation(fields: [id_usuario], references: [id_usuario])
+  grupo         Grupo    @relation(fields: [id_grupo], references: [id_grupo])
 
   @@map("tbl_calendario")
 }
 
-//
 // ------------------------
-// MODELOS DE CHAT E MENSAGENS
+// Modelo ChatRoom
 // ------------------------
 model ChatRoom {
-  id_chat_room  Int                @id @default(autoincrement())
-  tipo          TipoChat
-  id_grupo      Int?
-  criado_em     DateTime           @default(now())
+  id_chat_room   Int              @id @default(autoincrement())
+  tipo           TipoChat
+  id_grupo       Int?             @unique
+  criado_em      DateTime         @default(now())
 
-  // Relações
-  grupo          Grupo?            @relation(fields: [id_grupo], references: [id_grupo])
-  mensagens      Mensagem[]        @relation("ChatRoomMensagens")
+  mensagens      Mensagem[]       @relation("ChatRoomMensagens")
   participantes  ChatParticipant[] @relation("ChatRoomParticipantes")
+  grupo          Grupo?           @relation(fields: [id_grupo], references: [id_grupo])
 
   @@map("tbl_chat_room")
 }
 
+// ------------------------
+// Modelo ChatParticipant
+// ------------------------
 model ChatParticipant {
-  id_participante Int         @id @default(autoincrement())
+  id_participante Int     @id @default(autoincrement())
   id_chat_room    Int
   id_usuario      Int
 
-  // Relações
   chat_room ChatRoom @relation("ChatRoomParticipantes", fields: [id_chat_room], references: [id_chat_room])
-  usuario   Usuario  @relation(fields: [id_usuario], references: [id_usuario])
-
-  @@map("tbl_chat_participant")
+  usuario   Usuario  @relation("ChatRoomParticipantes", fields: [id_usuario], references: [id_usuario])
 }
 
+// ------------------------
+// Modelo Mensagem
+// ------------------------
 model Mensagem {
-  id_mensagem  Int       @id @default(autoincrement())
+  id_mensagem Int      @id @default(autoincrement())
   id_chat_room Int
   id_usuario   Int
-  conteudo     String    @db.Text
-  enviado_em   DateTime  @default(now())
+  conteudo     String   @db.Text
+  enviado_em   DateTime @default(now())
 
-  // Relações
   chat_room ChatRoom @relation("ChatRoomMensagens", fields: [id_chat_room], references: [id_chat_room])
-  usuario   Usuario  @relation(fields: [id_usuario], references: [id_usuario])
+  usuario   Usuario  @relation("ChatRoomMensagens", fields: [id_usuario], references: [id_usuario])
 
-  @@map("tbl_mensagens")
+  @@map("tbl_mensagem") // <-- importante!
 }
 
-//
 // ------------------------
-// Enum para o tipo do chat
+// Enum TipoChat
 // ------------------------
 enum TipoChat {
   privado

@@ -42,7 +42,22 @@ const selectChatRoomById = async (id) => {
     return false
   }
 }
+const getMensagensPorChatRoom = async (id_chat_room) => {
+  try {
+    const mensagens = await prisma.mensagem.findMany({
+      where: { id_chat_room: Number(id_chat_room) },
+      orderBy: { enviado_em: 'asc' }, // ordena por data/hora
+      include: {
+        usuario: { select: { id_usuario: true, nome_completo: true, foto_perfil: true } }
+      }
+    })
 
+    return mensagens.length > 0 ? mensagens : null
+  } catch (error) {
+    console.error('Erro getMensagensPorChatRoom:', error)
+    return null
+  }
+}
 // Buscar salas por tipo
 const selectChatRoomsByTipo = async (tipo) => {
   try {
@@ -74,5 +89,6 @@ module.exports = {
   selectAllChatRooms,
   selectChatRoomById,
   selectChatRoomsByTipo,
-  deleteChatRoom
+  deleteChatRoom,
+  getMensagensPorChatRoom
 }

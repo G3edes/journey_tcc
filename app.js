@@ -612,6 +612,13 @@ app.delete('/v1/journey/chatroom/:id', cors(), async (req, res) => {
   let result = await controllerChatRoom.excluirChatRoom(id)
   res.status(result.status_code || 500).json(result)
 })
+app.get('/v1/journey/chat/:id_chat_room', cors(), async function (request, response) {
+    const id_chat_room = request.params.id_chat_room
+    const result = await controllerChatRoom.getMensagensChat(id_chat_room)
+  
+    response.status(result.status_code)
+    response.json(result)
+})
 
 /*******************************************************************************************************************
  * 

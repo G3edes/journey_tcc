@@ -27,6 +27,30 @@ const inserirChatRoom = async (sala, contentType) => {
   }
 }
 
+
+const getMensagensChat = async (id_chat_room) => {
+  const id = Number(id_chat_room)
+  if (!id || isNaN(id) || id <= 0) {
+    return { status: false, status_code: 400, message: 'ID do chat inválido' }
+  }
+
+  try {
+    const mensagens = await DAOChatRoom.getMensagensPorChatRoom(id)
+
+    if (!mensagens) {
+      return { status: false, status_code: 404, message: 'Nenhuma mensagem encontrada' }
+    }
+
+    return { status: true, status_code: 200, mensagens }
+  } catch (error) {
+    console.error('Erro getMensagensChat controller:', error)
+    return { status: false, status_code: 500, message: message.ERROR_INTERNAL_SERVER_CONTROLLER }
+  }
+}
+
+module.exports = { getMensagensChat }
+
+
 // Atualizar (pode ser opcional dependendo da regra)
 const atualizarChatRoom = async (id, sala, contentType) => {
   try {
@@ -127,5 +151,6 @@ module.exports = {
   atualizarChatRoom,
   excluirChatRoom,
   listarChatRooms,
-  buscarChatRoom
+  buscarChatRoom,
+  getMensagensChat
 }
