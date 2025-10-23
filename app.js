@@ -529,13 +529,19 @@ app.delete('/v1/journey/mensagem/:id', cors(), async function (request, response
  *******************************************************************************************************************/
 const controllerCalendario = require('./controller/calendario/controllerCalendario')
 
-app.post('/v1/journey/calendario', cors(), bodyParserJSON, async function (request, response) {
-    let contentType = request.headers['content-type']
-    let dadosBody = request.body
+app.post('/v1/journey/calendario', cors(), bodyParserJSON, async (req, res) => {
+    const contentType = req.headers['content-type']
+    const dadosBody = req.body  // deve incluir id_usuario
+    const result = await controllerCalendario.inserirCalendario(dadosBody, contentType)
+    res.status(result.status_code).json(result)
+})
 
-    let result = await controllerCalendario.inserirCalendario(dadosBody, contentType)
-    response.status(result.status_code)
-    response.json(result)
+app.put('/v1/journey/calendario/:id', cors(), bodyParserJSON, async (req, res) => {
+    const contentType = req.headers['content-type']
+    const id = req.params.id
+    const dadosBody = req.body  // deve incluir id_usuario
+    const result = await controllerCalendario.atualizarCalendario(id, dadosBody, contentType)
+    res.status(result.status_code).json(result)
 })
 
 // GET - Listar todos os calendários
@@ -562,16 +568,6 @@ app.delete('/v1/journey/calendario/:id', cors(), async function (request, respon
     response.json(result)
 })
 
-// PUT - Atualizar calendário
-app.put('/v1/journey/calendario/:id', cors(), bodyParserJSON, async function (request, response) {
-    let contentType = request.headers['content-type']
-    let id = request.params.id
-    let dadosBody = request.body
-
-    let result = await controllerCalendario.atualizarCalendario(id, dadosBody, contentType)
-    response.status(result.status_code)
-    response.json(result)
-})
 /*******************************************************************************************************************
  * 
  *                                  CHAT ROOMS

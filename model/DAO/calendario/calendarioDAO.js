@@ -10,15 +10,15 @@ const prisma = new PrismaClient()
 
 // Inserir calendário
 const inserirCalendario = async (dados) => {
-
   try {
     const created = await prisma.calendario.create({
         data: {
           nome_evento: dados.nome_evento,
-          data_evento: new Date(dados.data_evento), // concatena data + hora
+          data_evento: new Date(dados.data_evento),
           descricao: dados.descricao,
           link: dados.link ?? null,
-          id_grupo: Number(dados.id_grupo)
+          id_grupo: Number(dados.id_grupo),
+          id_usuario: Number(dados.id_usuario) // <-- novo
         }
       })
     return created ? true : false
@@ -38,7 +38,8 @@ const updateCalendario = async (dados) => {
         data_evento: new Date(`${dados.data_evento}T${dados.hora_evento}`),
         descricao: dados.descricao,
         link: dados.link,
-        id_grupo: Number(dados.id_grupo)
+        id_grupo: Number(dados.id_grupo),
+        id_usuario: Number(dados.id_usuario) // permite atualizar se necessário
       }
     })
     return updated ? true : false
