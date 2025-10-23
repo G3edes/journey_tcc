@@ -1,5 +1,6 @@
 const grupoDAO = require('../../model/DAO/group/groupDAO.js')
 const message = require('../../module/config.js')
+const DAOChatRoom = require('../../model/DAO/chat/chatRoomDAO.js')
 
 // Inserir novo grupo
 const inserirGrupo = async (dados, contentType) => {
@@ -27,11 +28,30 @@ const inserirGrupo = async (dados, contentType) => {
             id_area: dados.id_area ?? null,
             id_usuario: Number(id_usuario)
           }
-
+          console.log("Payload recebido:", payload)
           const resInsert = await grupoDAO.insertGrupo(payload)
-
+          
           if (resInsert && resInsert.insertId) {
-            return message.SUCESS_CREATED_ITEM
+            const sala = {
+              tipo: 'grupo',
+              id_grupo: resInsert.insertId
+            }
+            const resChat = await DAOChatRoom.insertChatRoom(sala)
+
+            if (resChat) {
+              return {
+                ...message.SUCESS_CREATED_ITEM,
+                id_grupo: resInsert.insertId,
+                chat_criado: true
+              }
+            } else {
+              console.warn('Grupo criado, mas falhou ao criar sala de chat.')
+              return {
+                ...message.SUCESS_CREATED_ITEM,
+                id_grupo: resInsert.insertId,
+                chat_criado: false
+              }
+            }
           } else {
             return message.ERROR_INTERNAL_SERVER_MODEL
           }
