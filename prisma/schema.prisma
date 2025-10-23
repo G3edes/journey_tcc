@@ -66,7 +66,6 @@ model Calendario {
   id_calendario Int      @id @default(autoincrement())
   nome_evento   String   @db.VarChar(100)
   data_evento   DateTime
-  hora_evento   DateTime
   descricao     String?
   link          String?  @db.VarChar(500)
   id_usuario    Int

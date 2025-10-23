@@ -9,18 +9,19 @@ const { PrismaClient } = require('@prisma/client')
 const prisma = new PrismaClient()
 
 // Inserir calendário
+// Inserir calendário
 const inserirCalendario = async (dados) => {
   try {
     const created = await prisma.calendario.create({
-        data: {
-          nome_evento: dados.nome_evento,
-          data_evento: new Date(dados.data_evento),
-          descricao: dados.descricao,
-          link: dados.link ?? null,
-          id_grupo: Number(dados.id_grupo),
-          id_usuario: Number(dados.id_usuario) // <-- novo
-        }
-      })
+      data: {
+        nome_evento: dados.nome_evento,
+        data_evento: new Date(dados.data_evento), // recebe data + hora juntos
+        descricao: dados.descricao,
+        link: dados.link ?? null,
+        id_grupo: Number(dados.id_grupo),
+        id_usuario: Number(dados.id_usuario)
+      }
+    })
     return created ? true : false
   } catch (error) {
     console.error('Erro ao inserir calendário:', error)
@@ -35,11 +36,11 @@ const updateCalendario = async (dados) => {
       where: { id_calendario: Number(dados.id_calendario) },
       data: {
         nome_evento: dados.nome_evento,
-        data_evento: new Date(`${dados.data_evento}T${dados.hora_evento}`),
+        data_evento: new Date(dados.data_evento),
         descricao: dados.descricao,
         link: dados.link,
         id_grupo: Number(dados.id_grupo),
-        id_usuario: Number(dados.id_usuario) // permite atualizar se necessário
+        id_usuario: Number(dados.id_usuario)
       }
     })
     return updated ? true : false

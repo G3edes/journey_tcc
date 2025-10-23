@@ -8,13 +8,14 @@ const inserirCalendario = async (calendario, contentType) => {
             return message.ERROR_CONTENT_TYPE
         }
         // Validação de campos obrigatórios
-        if (!calendario.nome_evento || !calendario.data_evento || !calendario.hora_evento ||
-            !calendario.descricao || !calendario.id_grupo || !calendario.id_usuario ||
+        if (!calendario.nome_evento || !calendario.data_evento || !calendario.descricao ||
+            !calendario.id_grupo || !calendario.id_usuario ||
             calendario.nome_evento.length > 100 || (calendario.link && calendario.link.length > 500) ||
             isNaN(calendario.id_grupo) || isNaN(calendario.id_usuario)
         ) {
             return message.ERROR_REQUIRED_FIELDS
         }
+        
 
         const result = await DAOCalendario.inserirCalendario(calendario)
         return result ? message.SUCESS_CREATED_ITEM : message.ERROR_INTERNAL_SERVER_MODEL
