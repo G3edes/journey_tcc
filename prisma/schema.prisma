@@ -69,3 +69,46 @@ model Calendario {
 
   @@map("tbl_calendario")
 }
+
+// ------------------------
+// MODELOS DE CHAT E MENSAGENS
+// ------------------------
+
+model ChatRoom {
+  id_chat_room Int            @id @default(autoincrement())
+  tipo         TipoChat       @db.Enum("TipoChat")
+  id_grupo     Int?           
+  criado_em    DateTime       @default(now())
+
+  // Relações
+  mensagens    Mensagem[]     @relation("ChatRoomMensagens")
+  participantes ChatParticipant[] @relation("ChatRoomParticipantes")
+}
+
+model ChatParticipant {
+  id_participante Int         @id @default(autoincrement())
+  id_chat_room    Int
+  id_usuario      Int
+
+  // Relações
+  chat_room ChatRoom @relation("ChatRoomParticipantes", fields: [id_chat_room], references: [id_chat_room])
+  usuario   Usuario  @relation(fields: [id_usuario], references: [id_usuario])
+}
+
+model Mensagem {
+  id_mensagem Int        @id @default(autoincrement())
+  id_chat_room Int
+  id_usuario   Int
+  conteudo     String     @db.Text
+  enviado_em   DateTime   @default(now())
+
+  // Relações
+  chat_room ChatRoom @relation("ChatRoomMensagens", fields: [id_chat_room], references: [id_chat_room])
+  usuario   Usuario  @relation(fields: [id_usuario], references: [id_usuario])
+}
+
+// Enum para o tipo do chat (privado ou grupo)
+enum TipoChat {
+  privado
+  grupo
+}
