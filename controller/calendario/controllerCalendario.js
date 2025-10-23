@@ -64,8 +64,8 @@ const excluirCalendario = async function (id) {
 
             let results = await DAOCalendario.selectCalendarioById(parseInt(id))
 
-            if (results != false || typeof (results) == 'object') {
-                if (results.length > 0) {
+            if (results != false) {
+                if (typeof (results) == 'object') {
                     let result = await DAOCalendario.deleteCalendario(parseInt(id))
 
                     if (result) {

@@ -1,70 +1,53 @@
-/*******************************************************************************************************
- * OBJETIVO: Criar uma API para realizar o CRUD do sistema de Eventos                                  *                                                                                  *
- * AUTOR: Gabriel Guedes                                                                               *
- * Versão: 1.0                                                                                         *
- * Observação:                                                                                         *
- *          Para criar a API precisamos instalar:                                                      *
- *                 express             npm install express --save                                      *
- *                 cors                npm install cors --save                                         *
- *                 body-parser         npm install body-parser --save                                  *
- *                                                                                                     *
- *          Para criar a integração com o Banco de Dados precisamos instalar:                          *
- *                 prisma               npm install prisma --save(para fazer a conexão com o BD)       *
- *                 prisma/client        npm install @prisma/client --save (para rodar os scripts SQL)  *
- *                                                                                                     *  
- *                                                                                                     *
- *          Após a instalação do prima e do prisma client, devemos :                                   *
- *              npx prisma init                                                                        *
- *                                                                                                     *
- *                                                                                                     *
- *          Você deverá configurar o arquivo .env e o schema.prisma com as credenciais do BD           *
- *          Após essa configuração voce deverá rodar o seguinte comando:                               *
- *                      npx prisma migrate dev                                                         *
- *                                                                                                     *
- *          Instalar o NodeMailer para mandar os emails                                                *
- *                                                                                                     *
- *          npm install nodemailer                                                                     *
- *                                                                                                     *
- *          npm install dotenv                                                                         *
- *                                                                                                     *
- *          Instalação do gitmoji para melhora de commits                                              *                             
- *              npm install -save-dev gitmoji-cli                                                      *                    
- *          Efetuação do commit:                                                                       *
- *              npx gitmoji -c                                                                         *
- *                                                                                                     *
- *          Instalação do bcrypt para criptografia                                                     *
- *              npm install bcryptjs                                                                   *
- *                                                                                                     *
- *          Instalação do jsonwebtoken para gerar token                                                *
- *              npm install jsonwebtoken                                                               *
- *                                                                                                     *
- *          Instalação do socket para gerenciar mensagens                                              *
- *              npm install socket.io                                                                  *
+/******************************************************************************************************
+ * OBJETIVO: Criar uma API para realizar o CRUD do sistema de Eventos                                 *                                                                                  *
+ * AUTOR: Gabriel Guedes                                                                              *
+ * Versão: 1.0                                                                                        *
+ * Observação:                                                                                        *
+ *          Para criar a API precisamos instalar:                                                     *
+ *                 express             npm install express --save                                     *
+ *                 cors                npm install cors --save                                        *
+ *                 body-parser         npm install body-parser --save                                 *
+ *                                                                                                    *
+ *          Para criar a integração com o Banco de Dados precisamos instalar:                         *
+ *                 prisma               npm install prisma --save(para fazer a conexão com o BD)      *
+ *                 prisma/client        npm install @prisma/client --save (para rodar os scripts SQL) *
+ *                                                                                                    *  
+ *                                                                                                    *
+ *          Após a instalação do prima e do prisma client, devemos :                                  *
+ *              npx prisma init                                                                       *
+ *                                                                                                    *
+ *                                                                                                    *
+ *          Você deverá configurar o arquivo .env e o schema.prisma com as credenciais do BD          *
+ *          Após essa configuração voce deverá rodar o seguinte comando:                              *
+ *                      npx prisma migrate dev                                                        *
+ *                                                                                                    *
+ *          Instalar o NodeMailer para mandar os emails                                               *
+ *                                                                                                    *
+ *          npm install nodemailer                                                                    *
+ *                                                                                                    *
+ *          npm install dotenv                                                                        *
+ *                                                                                                    *
+ *          Instalação do gitmoji para melhora de commits                                             *                             
+ *              npm install -save-dev gitmoji-cli                                                     *                    
+ *          Efetuação do commit:                                                                      *
+ *              npx gitmoji -c                                                                        *
+ *                                                                                                    *
+ *          Instalação do bcrypt para criptografia                                                    *
+ *              npm install bcryptjs                                                                    *
+ *                                                                                                    *
+ *          Instalação do jsonwebtoken para gerar token                                               *
+ *              npm install jsonwebtoken                                                              *
  ******************************************************************************************************/
 
-const express = require('express')
-const cors = require('cors')
-const bodyParser = require('body-parser')
+const express =require ('express')
+const cors =require ('cors')
+const bodyParser =require ('body-parser')
 
 const bodyParserJSON = bodyParser.json()
 const app = express()
 
-// aumenta o limite de tamanho do corpo das requisições
-app.use(express.json({ limit: "10mb" }));
-app.use(express.urlencoded({ limit: "10mb", extended: true }));
-
-// para se for usar o bodyparser (opcional)
-app.use(bodyParser.json({ limit: "10mb" }));
-app.use(bodyParser.urlencoded({ limit: "10mb", extended: true }));
-
-
-// Corrige erro de BigInt -> JSON
-BigInt.prototype.toJSON = function () {
-    return this.toString();
-};
-
-app.use(cors())
-app.use((req, res, next) => {
+app.use (cors())
+app.use((req,res,next) =>{
     res.header('Access-Control-Allow-Origin', '*')
     res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS')
     res.header('Access-Control-Allow-Headers', 'Content-Type')
@@ -87,7 +70,7 @@ app.use(bodyParser.urlencoded({ limit: "10mb", extended: true }));
 
 // Corrige erro de BigInt -> JSON
 BigInt.prototype.toJSON = function () {
-    return this.toString();
+  return this.toString();
 };
 
 
@@ -96,57 +79,57 @@ BigInt.prototype.toJSON = function () {
  *                                  USUARIO
  * 
  ********************************************************************************************************************/
-const controllerUser = require('./controller/user/controllerUser')
+const controllerUser= require('./controller/user/controllerUser')
 
 const controllerRecuperarSenha = require('./controller/user/controllerRecuperarSenha')
 
 app.post('/v1/journey/usuario', cors(), bodyParserJSON, async function (request, response) {
     //recebe o content-type da requisição
-    let contentType = request.headers['content-type']
+    let contentType=request.headers['content-type']
     //recebe do body da requisição os dados encaminhados
 
-
-    let dadosBody = request.body
-    let result = await controllerUser.inserirUsuario(dadosBody, contentType)
+    
+    let dadosBody=request.body
+    let result= await controllerUser.inserirUsuario(dadosBody,contentType)
     response.status(result.status_code)
     response.json(result)
 })
 app.put('/v1/journey/usuario/senha/:id', cors(), bodyParserJSON, async function (request, response) {
     //recebe o content-type da requisição
-    let contentType = request.headers['content-type']
+    let contentType=request.headers['content-type']
     //recebe do body da requisição os dados encaminhados
 
     let id = request.params.id
     //body da requisição
-    let dadosBody = request.body
-    let result = await controllerUser.atualizarSenhaUsuario(id, dadosBody, contentType)
+    let dadosBody=request.body
+    let result= await  controllerUser.atualizarSenhaUsuario(id, dadosBody, contentType)
     response.status(result.status_code)
     response.json(result)
 })
 app.get('/v1/journey/usuario', cors(), async function (request, response) {
-    let result = await controllerUser.listarUsuario()
+    let result= await controllerUser.listarUsuario()
     response.status(result.status_code)
     response.json(result)
 })
 app.get('/v1/journey/usuario/:id', cors(), async function (request, response) {
-    let id = request.params.id
-    let result = await controllerUser.buscarUsuario(id)
+    let id=request.params.id
+    let result= await controllerUser.buscarUsuario(id)
     response.status(result.status_code)
     response.json(result)
 })
 app.post('/v1/journey/usuario/login', cors(), async function (request, response) {
     try {
-        let dadosBody = request.body
-        let result = await controllerUser.loginUsuario(dadosBody)
-
-        response.status(result.status_code || 500)
-        response.json(result)
+      let dadosBody = request.body
+      let result = await controllerUser.loginUsuario(dadosBody)
+  
+      response.status(result.status_code || 500)
+      response.json(result)
     } catch (error) {
-        console.error("🔥 endpoint /login:", error)
-        response.status(500).json({ status: false, message: "Erro interno no servidor" })
+      console.error("🔥 endpoint /login:", error)
+      response.status(500).json({ status: false, message: "Erro interno no servidor" })
     }
-})
-app.delete('/v1/journey/usuario/:id', cors(), async function (request, response) {
+  })
+app.delete('/v1/journey/usuario/:id', cors(), async function (request, response){
     let id = request.params.id
     let result = await controllerUser.excluirUsuario(id)
 
@@ -213,14 +196,87 @@ app.delete('/v1/journey/group/:id', cors(), async (request, response) => {
     response.status(result.status_code)
     response.json(result)
 })
-app.get('/v1/journey/group/chat-room/:id', cors(), async function (request, response) {
-    const id_grupo = request.params.id
-    const result = await controllerGroup.getGrupoComChatRoom(id_grupo)
-  
-    response.status(result.status_code)
-    response.json(result)
-  })
-  
+
+/*******************************************************************************************************************
+ * 
+ *                                  E-book
+ * 
+ *******************************************************************************************************************/
+const controllerEbook = require('./controller/e-book/controllerEbook')
+// Inserir eBook
+app.post('/v1/journey/ebook', cors(), bodyParserJSON, async (req, res) => {
+    const contentType = req.headers['content-type']
+    const result = await controllerEbook.inserirEbook(req.body, contentType)
+    res.status(result.status_code)
+    res.json(result)
+})
+
+// Listar eBooks
+app.get('/v1/journey/ebook', cors(), async (req, res) => {
+    const result = await controllerEbook.listarEbooks()
+    res.status(result.status_code)
+    res.json(result)
+})
+
+// Buscar eBook por ID
+app.get('/v1/journey/ebook/:id', cors(), async (req, res) => {
+    const result = await controllerEbook.buscarEbook(req.params.id)
+    res.status(result.status_code)
+    res.json(result)
+})
+
+// Atualizar eBook
+app.put('/v1/journey/ebook/:id', cors(), bodyParserJSON, async (req, res) => {
+    const contentType = req.headers['content-type']
+    const result = await controllerEbook.atualizarEbook(req.params.id, req.body, contentType)
+    res.status(result.status_code)
+    res.json(result)
+})
+
+// Excluir eBook
+app.delete('/v1/journey/ebook/:id', cors(), async (req, res) => {
+    const result = await controllerEbook.excluirEbook(req.params.id)
+    res.status(result.status_code)
+    res.json(result)
+})
+
+/*******************************************************************************************************************
+ * 
+ *                                  E-book x Categoria
+ * 
+ *******************************************************************************************************************/
+const controllerEbookCategoria = require('./controller/e-book/controllerEbookCategoria')
+
+// Inserir relação eBook-Categoria
+app.post('/v1/journey/ebook-categoria', cors(), bodyParserJSON, async (req, res) => {
+    const contentType = req.headers['content-type']
+    const result = await controllerEbookCategoria.inserirEbookCategoria(req.body, contentType)
+    res.status(result.status_code)
+    res.json(result)
+})
+
+// Listar todas as relações
+app.get('/v1/journey/ebook-categoria', cors(), async (req, res) => {
+    const result = await controllerEbookCategoria.listarEbooksCategorias()
+    res.status(result.status_code)
+    res.json(result)
+})
+
+// Buscar relação por ID
+app.get('/v1/journey/ebook-categoria/:id', cors(), async (req, res) => {
+    const result = await controllerEbookCategoria.buscarEbookCategoria(req.params.id)
+    res.status(result.status_code)
+    res.json(result)
+})
+
+// Deletar relação
+app.delete('/v1/journey/ebook-categoria/:id', cors(), async (req, res) => {
+    const result = await controllerEbookCategoria.excluirEbookCategoria(req.params.id)
+    res.status(result.status_code)
+    res.json(result)
+})
+
+
 
 /*******************************************************************************************************************
  * 
@@ -232,42 +288,42 @@ const controllerCategoria = require('./controller/category/controllerCategoria')
 
 app.post('/v1/journey/categoria', cors(), bodyParserJSON, async function (request, response) {
     //recebe o content-type da requisição
-    let contentType = request.headers['content-type']
+    let contentType=request.headers['content-type']
     //recebe do body da requisição os dados encaminhados
 
-
-    let dadosBody = request.body
-    let result = await controllerCategoria.inserirCategoria(dadosBody, contentType)
+    
+    let dadosBody=request.body
+    let result= await controllerCategoria.inserirCategoria(dadosBody,contentType)
     response.status(result.status_code)
     response.json(result)
 })
 app.get('/v1/journey/categoria', cors(), async function (request, response) {
-    let result = await controllerCategoria.listarCategoria()
+    let result= await controllerCategoria.listarCategoria()
     response.status(result.status_code)
     response.json(result)
 })
 app.get('/v1/journey/categoria/:id', cors(), async function (request, response) {
-    let id = request.params.id
-    let result = await controllerCategoria.buscarCategoria(id)
+    let id=request.params.id
+    let result= await controllerCategoria.buscarCategoria(id)
     response.status(result.status_code)
     response.json(result)
 })
 
-app.delete('/v1/journey/categoria/:id', cors(), async function (request, response) {
+app.delete('/v1/journey/categoria/:id', cors(), async function (request, response){
     let id = request.params.id
     let result = await controllerCategoria.excluirCategoria(id)
 
     response.status(result.status_code)
     response.json(result)
 })
-app.put('/v1/journey/categoria/:id', cors(), bodyParserJSON, async function (request, response) {
+app.put('/v1/journey/categoria/:id', cors(), bodyParserJSON,async function (request, response) {
     //content-type requisição
-    let contentType = request.headers['content-type']
+    let contentType= request.headers['content-type']
     //id da requisção
     let id = request.params.id
     //body da requisição
-    let dadosBody = request.body
-    let result = await controllerCategoria.atualizarCategoria(id, dadosBody, contentType)
+    let dadosBody=request.body
+    let result= await  controllerCategoria.atualizarCategoria(id, dadosBody, contentType)
     response.status(result.status_code)
     response.json(result)
 })
@@ -280,43 +336,43 @@ app.put('/v1/journey/categoria/:id', cors(), bodyParserJSON, async function (req
 const controllerArea = require('./controller/area/controllerArea')
 
 app.post('/v1/journey/area', cors(), bodyParserJSON, async function (request, response) {
-    //recebe o content-type da requisição
-    let contentType = request.headers['content-type']
+     //recebe o content-type da requisição
+    let contentType=request.headers['content-type']
     //recebe do body da requisição os dados encaminhados
 
-
-    let dadosBody = request.body
-    let result = await controllerArea.inserirArea(dadosBody, contentType)
+    
+    let dadosBody=request.body
+    let result= await controllerArea.inserirArea(dadosBody,contentType)
     response.status(result.status_code)
     response.json(result)
 })
 app.get('/v1/journey/area', cors(), async function (request, response) {
-    let result = await controllerArea.listarArea()
+    let result= await controllerArea.listarArea()
     response.status(result.status_code)
     response.json(result)
 })
 app.get('/v1/journey/area/:id', cors(), async function (request, response) {
-    let id = request.params.id
-    let result = await controllerArea.buscarArea(id)
+    let id=request.params.id
+    let result= await controllerArea.buscarArea(id)
     response.status(result.status_code)
     response.json(result)
 })
 
-app.delete('/v1/journey/area/:id', cors(), async function (request, response) {
+app.delete('/v1/journey/area/:id', cors(), async function (request, response){
     let id = request.params.id
     let result = await controllerArea.excluirArea(id)
 
     response.status(result.status_code)
     response.json(result)
 })
-app.put('/v1/journey/area/:id', cors(), bodyParserJSON, async function (request, response) {
+app.put('/v1/journey/area/:id', cors(), bodyParserJSON,async function (request, response) {
     //content-type requisição
-    let contentType = request.headers['content-type']
+    let contentType= request.headers['content-type']
     //id da requisção
     let id = request.params.id
     //body da requisição
-    let dadosBody = request.body
-    let result = await controllerArea.atualizarArea(id, dadosBody, contentType)
+    let dadosBody=request.body
+    let result= await  controllerArea.atualizarArea(id, dadosBody, contentType)
     response.status(result.status_code)
     response.json(result)
 })
@@ -332,41 +388,41 @@ const controllerUsuarioGrupo = require('./controller/user/controllerUsuarioGrupo
 
 // Inserir novo relacionamento
 app.post('/v1/journey/usuario-grupo', cors(), bodyParserJSON, async (req, res) => {
-    const contentType = req.headers['content-type']
-    const dadosBody = req.body
+  const contentType = req.headers['content-type']
+  const dadosBody = req.body
 
-    const result = await controllerUsuarioGrupo.inserirUsuarioGrupo(dadosBody, contentType)
-    res.status(result.status_code).json(result)
+  const result = await controllerUsuarioGrupo.inserirUsuarioGrupo(dadosBody, contentType)
+  res.status(result.status_code).json(result)
 })
 
 // Listar todos os relacionamentos
 app.get('/v1/journey/usuario-grupo', cors(), async (req, res) => {
-    const result = await controllerUsuarioGrupo.listarUsuariosGrupos()
-    res.status(result.status_code).json(result)
+  const result = await controllerUsuarioGrupo.listarUsuariosGrupos()
+  res.status(result.status_code).json(result)
 })
 
 // Buscar relacionamento por ID
 app.get('/v1/journey/usuario-grupo/:id', cors(), async (req, res) => {
-    const id = req.params.id
-    const result = await controllerUsuarioGrupo.buscarUsuarioGrupoPorId(id)
-    res.status(result.status_code).json(result)
+  const id = req.params.id
+  const result = await controllerUsuarioGrupo.buscarUsuarioGrupoPorId(id)
+  res.status(result.status_code).json(result)
 })
 
 // Excluir relacionamento
 app.delete('/v1/journey/usuario-grupo/:id', cors(), async (req, res) => {
-    const id = req.params.id
-    const result = await controllerUsuarioGrupo.excluirUsuarioGrupo(id)
-    res.status(result.status_code).json(result)
+  const id = req.params.id
+  const result = await controllerUsuarioGrupo.excluirUsuarioGrupo(id)
+  res.status(result.status_code).json(result)
 })
 
 // Atualizar relacionamento
 app.put('/v1/journey/usuario-grupo/:id', cors(), bodyParserJSON, async (req, res) => {
-    const contentType = req.headers['content-type']
-    const id = req.params.id
-    const dadosBody = req.body
+  const contentType = req.headers['content-type']
+  const id = req.params.id
+  const dadosBody = req.body
 
-    const result = await controllerUsuarioGrupo.atualizarUsuarioGrupo(id, dadosBody, contentType)
-    res.status(result.status_code).json(result)
+  const result = await controllerUsuarioGrupo.atualizarUsuarioGrupo(id, dadosBody, contentType)
+  res.status(result.status_code).json(result)
 })
 
 /*******************************************************************************************************************
@@ -472,10 +528,10 @@ app.get('/v1/journey/group/:id/participantes', cors(), async function (request, 
 
 /*******************************************************************************************************************
  * 
- *                                  Mensagem
+ *                                  CALENDARIO
  * 
  *******************************************************************************************************************/
-/*
+
 // POST - Inserir nova mensagem
 app.post('/v1/journey/mensagem', cors(), bodyParserJSON, async function (request, response) {
     let contentType = request.headers['content-type']
@@ -519,7 +575,7 @@ app.delete('/v1/journey/mensagem/:id', cors(), async function (request, response
     response.status(result.status_code || 500)
     response.json(result)
 })
-*/
+
 
 
 /*******************************************************************************************************************
@@ -529,19 +585,13 @@ app.delete('/v1/journey/mensagem/:id', cors(), async function (request, response
  *******************************************************************************************************************/
 const controllerCalendario = require('./controller/calendario/controllerCalendario')
 
-app.post('/v1/journey/calendario', cors(), bodyParserJSON, async (req, res) => {
-    const contentType = req.headers['content-type']
-    const dadosBody = req.body  // deve incluir id_usuario
-    const result = await controllerCalendario.inserirCalendario(dadosBody, contentType)
-    res.status(result.status_code).json(result)
-})
+app.post('/v1/journey/calendario', cors(), bodyParserJSON, async function (request, response) {
+    let contentType = request.headers['content-type']
+    let dadosBody = request.body
 
-app.put('/v1/journey/calendario/:id', cors(), bodyParserJSON, async (req, res) => {
-    const contentType = req.headers['content-type']
-    const id = req.params.id
-    const dadosBody = req.body  // deve incluir id_usuario
-    const result = await controllerCalendario.atualizarCalendario(id, dadosBody, contentType)
-    res.status(result.status_code).json(result)
+    let result = await controllerCalendario.inserirCalendario(dadosBody, contentType)
+    response.status(result.status_code)
+    response.json(result)
 })
 
 // GET - Listar todos os calendários
@@ -568,134 +618,55 @@ app.delete('/v1/journey/calendario/:id', cors(), async function (request, respon
     response.json(result)
 })
 
-/*******************************************************************************************************************
- * 
- *                                  CHAT ROOMS
- * 
- *******************************************************************************************************************/
+// PUT - Atualizar calendário
+app.put('/v1/journey/calendario/:id', cors(), bodyParserJSON, async function (request, response) {
+    let contentType = request.headers['content-type']
+    let id = request.params.id
+    let dadosBody = request.body
 
-const controllerChatRoom = require('./controller/chat/controllerChatRoom.js')
-
-// Listar todas as salas
-app.get('/v1/journey/chatrooms', cors(), async (req, res) => {
-  let result = await controllerChatRoom.listarChatRooms()
-  res.status(result.status_code || 500).json(result)
-})
-
-// Buscar sala por ID
-app.get('/v1/journey/chatroom/:id', cors(), async (req, res) => {
-  let id = req.params.id
-  let result = await controllerChatRoom.buscarChatRoom(id)
-  res.status(result.status_code || 500).json(result)
-})
-
-// Inserir nova sala
-app.post('/v1/journey/chatroom', cors(), async (req, res) => {
-  let result = await controllerChatRoom.inserirChatRoom(req.body, req.headers['content-type'])
-  res.status(result.status_code || 500).json(result)
-})
-
-// Atualizar sala
-app.put('/v1/journey/chatroom/:id', cors(), async (req, res) => {
-  let id = req.params.id
-  let result = await controllerChatRoom.atualizarChatRoom(id, req.body, req.headers['content-type'])
-  res.status(result.status_code || 500).json(result)
-})
-
-// Excluir sala
-app.delete('/v1/journey/chatroom/:id', cors(), async (req, res) => {
-  let id = req.params.id
-  let result = await controllerChatRoom.excluirChatRoom(id)
-  res.status(result.status_code || 500).json(result)
-})
-app.get('/v1/journey/chat/:id_chat_room', cors(), async function (request, response) {
-    const id_chat_room = request.params.id_chat_room
-    const result = await controllerChatRoom.getMensagensChat(id_chat_room)
-  
+    let result = await controllerCalendario.atualizarCalendario(id, dadosBody, contentType)
     response.status(result.status_code)
     response.json(result)
 })
 
-/*******************************************************************************************************************
- * 
- *                                  CHAT PARTICIPANTE
- * 
- *******************************************************************************************************************/
-const controllerChatParticipant = require('./controller/chat/controllerchatParticipante.js')
-
-// Listar todos os participantes
-app.get('/v1/journey/chatparticipants', cors(), async (req, res) => {
-  let result = await controllerChatParticipant.listarChatParticipants()
-  res.status(result.status_code || 500).json(result)
-})
-
-// Buscar participante por ID
-app.get('/v1/journey/chatparticipant/:id', cors(), async (req, res) => {
-  let id = req.params.id
-  let result = await controllerChatParticipant.buscarChatParticipant(id)
-  res.status(result.status_code || 500).json(result)
-})
-
-// Buscar participantes por sala
-app.get('/v1/journey/chatparticipants/room/:id_chat_room', cors(), async (req, res) => {
-  let id_chat_room = req.params.id_chat_room
-  let result = await controllerChatParticipant.buscarParticipantsByChatRoom(id_chat_room)
-  res.status(result.status_code || 500).json(result)
-})
-
-// Inserir participante
-app.post('/v1/journey/chatparticipant', cors(), async (req, res) => {
-  let result = await controllerChatParticipant.inserirChatParticipant(req.body, req.headers['content-type'])
-  res.status(result.status_code || 500).json(result)
-})
-
-// Excluir participante
-app.delete('/v1/journey/chatparticipant/:id', cors(), async (req, res) => {
-  let id = req.params.id
-  let result = await controllerChatParticipant.excluirChatParticipant(id)
-  res.status(result.status_code || 500).json(result)
-})
-
-
-/********************************************************************************************************************
- *                                                                                                                  *
- *                                MENSAGEM                                                                          *
- *                                                                                                                  *
- ********************************************************************************************************************/
-// Importa o controller de mensagens
 const controllerMensagens = require('./controller/mensagens/controllerMensagens')
 
-// Listar todas as mensagens
-app.get('/v1/journey/mensagens', cors(), async (req, res) => {
-    let result = await controllerMensagens.listarMensagens()
-    res.status(result.status_code || 500).json(result)
-  })
-  
-  // Buscar mensagem por ID
-  app.get('/v1/journey/mensagem/:id', cors(), async (req, res) => {
-    let id = req.params.id
-    let result = await controllerMensagens.buscarMensagem(id)
-    res.status(result.status_code || 500).json(result)
-  })
-  
-  // Inserir nova mensagem
-  app.post('/v1/journey/mensagem', cors(), async (req, res) => {
-    let result = await controllerMensagens.inserirMensagem(req.body, req.headers['content-type'])
-    res.status(result.status_code || 500).json(result)
-  })
-  
-  // Atualizar mensagem
-  app.put('/v1/journey/mensagem/:id', cors(), async (req, res) => {
-    let id = req.params.id
-    let result = await controllerMensagens.atualizarMensagem(id, req.body, req.headers['content-type'])
-    res.status(result.status_code || 500).json(result)
-  })
-  
-  // Excluir mensagem
-  app.delete('/v1/journey/mensagem/:id', cors(), async (req, res) => {
-    let id = req.params.id
-    let result = await controllerMensagens.excluirMensagem(id)
-    res.status(result.status_code || 500).json(result)
-  })
+const server = http.createServer(app);
 
-  module.exports = app
+// cria o servidor WebSocket (Socket.IO)
+const io = new Server(server, {
+  cors: {
+    origin: "http://localhost:5173", // endereço do seu React
+    methods: ["GET", "POST"]
+  }
+});
+
+io.on("connection", (socket) => {
+  console.log("Usuário conectado:", socket.id);
+
+  // usuário entra numa sala (chat_room)
+  socket.on("join_room", (chatId) => {
+    socket.join(`chat:${chatId}`);
+    console.log(`Usuário entrou na sala chat:${chatId}`);
+  });
+
+  // quando recebe uma mensagem
+  socket.on("send_message", async (data) => {
+    console.log("Mensagem recebida:", data);
+    let result = await controllerMensagens.inserirMensagem(data)
+
+    // enviar para todos da sala
+    io.to(`chat:${data.chatRoomId}`).emit("receive_message", data);
+  });
+
+  socket.on("disconnect", () => {
+    console.log("Usuário saiu:", socket.id);
+  });
+});
+
+
+
+const PORT = process.env.PORT || 8080;
+app.listen(PORT, () => {
+  console.log(`Servidor rodando na porta ${PORT}`);
+});

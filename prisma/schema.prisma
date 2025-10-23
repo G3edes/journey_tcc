@@ -32,9 +32,10 @@ model Usuario {
 // Modelo Area
 // ------------------------
 model Area {
-  id_area    Int     @id @default(autoincrement())
-  nome_area  String
-  grupos     Grupo[] // relação 1:N com Grupo
+  id_area Int @id @default(autoincrement())
+  area    String @db.VarChar(100)
+
+  grupos  Grupo[]
 
   @@map("tbl_area")
 }
@@ -127,4 +128,45 @@ model Mensagem {
 enum TipoChat {
   privado
   grupo
+}
+// ------------------------
+// Categoria
+// ------------------------
+model Categoria {
+  id_categoria Int    @id @default(autoincrement())
+  categoria    String @db.VarChar(100)
+
+  ebooksCategorias EbooksCategoria[]  @relation("EbookCategorias")
+
+  @@map("tbl_categoria")
+}
+// ------------------------
+// Modelo Ebooks
+// ------------------------
+model Ebooks {
+  id_ebooks          Int                  @id @default(autoincrement())
+  titulo             String               @db.VarChar(100)
+  preco              Decimal              @db.Decimal(10, 2)
+  descricao          String
+  link_imagem        String               @db.VarChar(255)
+  link_arquivo_pdf   String?              @db.VarChar(255)
+  id_usuario         Int
+  usuario            Usuario              @relation(fields: [id_usuario], references: [id_usuario], onDelete: Cascade, onUpdate: Cascade)
+  categoriasEbooks   EbooksCategoria[]    @relation("EbookCategorias")
+
+  @@map("tbl_ebooks")
+}
+
+// ------------------------
+// Modelo EbooksCategoria (relação N:N entre Ebooks e Categoria)
+// ------------------------
+model EbooksCategoria {
+  id_ebooks_categoria Int        @id @default(autoincrement())
+  id_categoria        Int
+  id_ebooks           Int
+
+  categoria           Categoria  @relation(fields: [id_categoria], references: [id_categoria], onDelete: Cascade, onUpdate: Cascade)
+  ebooks              Ebooks     @relation("EbookCategorias", fields: [id_ebooks], references: [id_ebooks], onDelete: Cascade, onUpdate: Cascade)
+
+  @@map("tbl_ebooks_categoria")
 }
