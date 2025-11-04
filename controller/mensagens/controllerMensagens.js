@@ -127,11 +127,37 @@ const buscarMensagem = async (id) => {
     return message.ERROR_INTERNAL_SERVER_CONTROLLER
   }
 }
+const listarMensagensPorSala = async (id_chat_room) => {
+  try {
+    console.log("Controller - buscando mensagens da sala:", id_chat_room)
+
+    const mensagens = await DAOMensagem.selectMensagensPorSala(id_chat_room)
+
+    if (mensagens && mensagens.length > 0) {
+      return {
+        status_code: 200,
+        mensagens
+      }
+    } else {
+      return {
+        status_code: 404,
+        message: "Nenhuma mensagem encontrada para esta sala"
+      }
+    }
+  } catch (error) {
+    console.error("Erro listarMensagensPorSala:", error)
+    return {
+      status_code: 500,
+      message: "Erro ao buscar mensagens"
+    }
+  }
+}
 
 module.exports = {
   inserirMensagem,
   listarMensagens,
   buscarMensagem,
   excluirMensagem,
-  atualizarMensagem
+  atualizarMensagem,
+  listarMensagensPorSala // ✅ exportação da nova função
 }

@@ -578,6 +578,50 @@ app.delete('/v1/journey/mensagem/:id', cors(), async function (request, response
     response.json(result)
 })
 
+/*******************************************************************************************************************
+ * 
+ *                                  CHAT ROOM POR GRUPO
+ * 
+ *******************************************************************************************************************/
+
+ app.get('/v1/journey/group/chat-room/:id', cors(), async function (request, response) {
+   const id_grupo = request.params.id
+ 
+   try {
+     const result = await controllerGroup.getGrupoComChatRoom(id_grupo)
+     response.status(result.status_code || 200)
+     response.json(result)
+   } catch (error) {
+     console.error("Erro /v1/journey/group/chat-room/:id:", error)
+     response.status(500).json({ message: "Erro interno no servidor" })
+   }
+ })
+ 
+
+ app.get('/v1/journey/chatroom/:id/mensagens', cors(), async (req, res) => {
+    const id = req.params.id
+    try {
+      const controllerMensagens = require('./controller/mensagens/controllerMensagens')
+      const result = await controllerMensagens.listarMensagensPorSala(id)
+      res.status(result.status_code || 200).json(result)
+    } catch (error) {
+      console.error("Erro /v1/journey/chatroom/:id/mensagens:", error)
+      res.status(500).json({ message: "Erro interno" })
+    }
+  })
+  
+  app.get('/v1/journey/chatroom/:id/mensagens', cors(), async (request, response) => {
+    const id_chat_room = Number(request.params.id)
+  
+    try {
+      const result = await controllerMensagens.listarMensagensPorSala(id_chat_room)
+      response.status(result.status_code || 200).json(result)
+    } catch (error) {
+      console.error("Erro /v1/journey/chatroom/:id/mensagens:", error)
+      response.status(500).json({ message: "Erro interno no servidor" })
+    }
+  })
+
 
 
 /*******************************************************************************************************************

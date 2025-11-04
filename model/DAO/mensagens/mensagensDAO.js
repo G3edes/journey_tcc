@@ -85,11 +85,43 @@ const deleteMensagem = async (id) => {
   }
 }
 
+const selectMensagensPorSala = async (id_chat_room) => {
+  try {
+    console.log("DAO - buscando mensagens da sala:", id_chat_room)
+
+    const mensagens = await prisma.mensagem.findMany({
+      where: {
+        id_chat_room: Number(id_chat_room) // 👈 força a conversão para Int
+      },
+      orderBy: {
+        id_mensagem: 'asc'
+      },
+      include: {
+        usuario: {
+          select: {
+            id_usuario: true,
+            nome_completo: true,
+            foto_perfil: true
+          }
+        }
+      }
+    })
+
+    return mensagens
+  } catch (error) {
+    console.error("Erro no selectMensagensPorSala:", error)
+    return false
+  }
+}
+
+
+
 module.exports = {
   insertMensagem,
   selectAllMensagens,
   selectMensagemById,
   selectMensagensByChatRoom,
   updateMensagem,
-  deleteMensagem
+  deleteMensagem,
+  selectMensagensPorSala
 }
