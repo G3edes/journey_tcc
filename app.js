@@ -675,4 +675,57 @@ app.put('/v1/journey/calendario/:id', cors(), bodyParserJSON, async function (re
     response.json(result)
 })
 
+
+/*******************************************************************************************************************
+ * 
+ *                                  CALENDARIO PESSOAL
+ * 
+ *******************************************************************************************************************/
+
+const controllerCalendarioPessoal = require('./controller/calendario/controllerCalendarioPessoal')
+
+// Inserir
+app.post('/v1/journey/calendario-pessoal', cors(), bodyParserJSON, async (request, response) => {
+  const contentType = request.headers['content-type']
+  const dadosBody = request.body
+
+  const result = await controllerCalendarioPessoal.inserirCalendarioPessoal(dadosBody, contentType)
+  response.status(result.status_code)
+  response.json(result)
+})
+
+// Listar todos
+app.get('/v1/journey/calendario-pessoal', cors(), async (request, response) => {
+  const result = await controllerCalendarioPessoal.listarCalendarioPessoal()
+  response.status(result.status_code)
+  response.json(result)
+})
+
+// Buscar por ID
+app.get('/v1/journey/calendario-pessoal/:id', cors(), async (request, response) => {
+  const id = request.params.id
+  const result = await controllerCalendarioPessoal.buscarCalendarioPessoal(id)
+  response.status(result.status_code)
+  response.json(result)
+})
+
+// Atualizar
+app.put('/v1/journey/calendario-pessoal/:id', cors(), bodyParserJSON, async (request, response) => {
+  const contentType = request.headers['content-type']
+  const id = request.params.id
+  const dadosBody = request.body
+
+  const result = await controllerCalendarioPessoal.atualizarCalendarioPessoal(id, dadosBody, contentType)
+  response.status(result.status_code)
+  response.json(result)
+})
+
+// Excluir
+app.delete('/v1/journey/calendario-pessoal/:id', cors(), async (request, response) => {
+  const id = request.params.id
+  const result = await controllerCalendarioPessoal.excluirCalendarioPessoal(id)
+  response.status(result.status_code)
+  response.json(result)
+})
+
 module.exports = app
