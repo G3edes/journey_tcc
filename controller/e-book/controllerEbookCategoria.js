@@ -1,4 +1,4 @@
-const DAO = require('../../model/DAO/ebookCategoria/ebookCategoriaDAO')
+const DAO = require('../../model/DAO/e-book/categoriaEbookDAO')
 const message = require('../../module/config')
 
 // ------------------------------------------------------

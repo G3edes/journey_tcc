@@ -33,10 +33,12 @@
  *              npx gitmoji -c                                                                        *
  *                                                                                                    *
  *          Instalação do bcrypt para criptografia                                                    *
- *              npm install bcryptjs                                                                    *
+ *              npm install bcryptjs                                                                  *
  *                                                                                                    *
  *          Instalação do jsonwebtoken para gerar token                                               *
  *              npm install jsonwebtoken                                                              *
+*          Instalção do socket                                                                        *
+*                         npm install socket.io                                                                            *
  ******************************************************************************************************/
 
 const express =require ('express')
@@ -528,7 +530,7 @@ app.get('/v1/journey/group/:id/participantes', cors(), async function (request, 
 
 /*******************************************************************************************************************
  * 
- *                                  CALENDARIO
+ *                                  MENSAGEM
  * 
  *******************************************************************************************************************/
 
@@ -629,44 +631,4 @@ app.put('/v1/journey/calendario/:id', cors(), bodyParserJSON, async function (re
     response.json(result)
 })
 
-const controllerMensagens = require('./controller/mensagens/controllerMensagens')
-
-const server = http.createServer(app);
-
-// cria o servidor WebSocket (Socket.IO)
-const io = new Server(server, {
-  cors: {
-    origin: "http://localhost:5173", // endereço do seu React
-    methods: ["GET", "POST"]
-  }
-});
-
-io.on("connection", (socket) => {
-  console.log("Usuário conectado:", socket.id);
-
-  // usuário entra numa sala (chat_room)
-  socket.on("join_room", (chatId) => {
-    socket.join(`chat:${chatId}`);
-    console.log(`Usuário entrou na sala chat:${chatId}`);
-  });
-
-  // quando recebe uma mensagem
-  socket.on("send_message", async (data) => {
-    console.log("Mensagem recebida:", data);
-    let result = await controllerMensagens.inserirMensagem(data)
-
-    // enviar para todos da sala
-    io.to(`chat:${data.chatRoomId}`).emit("receive_message", data);
-  });
-
-  socket.on("disconnect", () => {
-    console.log("Usuário saiu:", socket.id);
-  });
-});
-
-
-
-const PORT = process.env.PORT || 8080;
-app.listen(PORT, () => {
-  console.log(`Servidor rodando na porta ${PORT}`);
-});
+module.exports = app
