@@ -37,14 +37,14 @@ io.on('connection', (socket) => {
     socket.join(`chat_${id_chat_room}`)
     console.log(`Usuário entrou na sala chat_${id_chat_room}`)
   })
-
+  const config = require ('./module/config')
   // Recebe mensagem de um cliente
   socket.on('send_message', async (data) => {
     try {
       // data deve conter: { id_chat_room, id_usuario, conteudo }
       let result = await controllerMensagem.inserirMensagem(data, 'application/json')
 
-      if (result === controllerMensagem.message.SUCESS_CREATED_ITEM) {
+      if (result === config.SUCESS_CREATED_ITEM) {
         // Emite a mensagem para todos na sala
         io.to(`chat_${data.id_chat_room}`).emit('receive_message', {
           id_usuario: data.id_usuario,
@@ -70,7 +70,7 @@ io.on('connection', (socket) => {
 })
 
 // --- Iniciar servidor ---
-const PORT = process.env.PORT || 8080
+const PORT = process.env.PORT || 3030
 server.listen(PORT, () => {
   console.log(`Servidor rodando na porta ${PORT}`)
 })

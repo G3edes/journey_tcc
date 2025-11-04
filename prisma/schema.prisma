@@ -11,19 +11,19 @@ datasource db {
 // Modelo Usuario
 // ------------------------
 model Usuario {
-  id_usuario      Int         @id @default(autoincrement())
-  nome_completo   String
-  email           String      @unique
-  senha           String
-  data_nascimento DateTime?
-  foto_perfil     String?
-  descricao       String?
-  tipo_usuario    String
+  id_usuario       Int               @id @default(autoincrement())
+  nome_completo    String
+  email            String            @unique
+  senha            String
+  data_nascimento  DateTime?
+  foto_perfil      String?
+  descricao        String?
+  tipo_usuario     String
 
-  grupos          Grupo[]                  // relação 1:N com Grupo
-  calendarios     Calendario[]             // relação 1:N com Calendario
-  chat_participacoes ChatParticipant[]     @relation("ChatRoomParticipantes")
-  mensagens       Mensagem[]               @relation("ChatRoomMensagens")
+  grupos           Grupo[]                  // relação 1:N com Grupo
+  calendarios      Calendario[]             // relação 1:N com Calendario
+  chat_participacoes ChatParticipant[]      @relation("ChatRoomParticipantes")
+  mensagens        Mensagem[]               @relation("ChatRoomMensagens")
 
   @@map("tbl_usuario")
 }
@@ -32,6 +32,9 @@ model Usuario {
 // Modelo Area
 // ------------------------
 model Area {
+  id_area    Int      @id @default(autoincrement())
+  nome_area  String   @map("area")  // map para coluna real no banco
+  grupos     Grupo[]  // relação 1:N com Grupo
   id_area Int @id @default(autoincrement())
   area    String @db.VarChar(100)
 
@@ -82,14 +85,14 @@ model Calendario {
 // Modelo ChatRoom
 // ------------------------
 model ChatRoom {
-  id_chat_room   Int              @id @default(autoincrement())
-  tipo           TipoChat
-  id_grupo       Int?             @unique
-  criado_em      DateTime         @default(now())
+  id_chat_room    Int              @id @default(autoincrement())
+  tipo            TipoChat
+  id_grupo        Int?             @unique
+  criado_em       DateTime         @default(now())
 
-  mensagens      Mensagem[]       @relation("ChatRoomMensagens")
-  participantes  ChatParticipant[] @relation("ChatRoomParticipantes")
-  grupo          Grupo?           @relation(fields: [id_grupo], references: [id_grupo])
+  mensagens       Mensagem[]       @relation("ChatRoomMensagens")
+  participantes   ChatParticipant[] @relation("ChatRoomParticipantes")
+  grupo           Grupo?           @relation(fields: [id_grupo], references: [id_grupo])
 
   @@map("tbl_chat_room")
 }
@@ -119,7 +122,7 @@ model Mensagem {
   chat_room ChatRoom @relation("ChatRoomMensagens", fields: [id_chat_room], references: [id_chat_room])
   usuario   Usuario  @relation("ChatRoomMensagens", fields: [id_usuario], references: [id_usuario])
 
-  @@map("tbl_mensagem") // <-- importante!
+  @@map("tbl_mensagens")
 }
 
 // ------------------------
