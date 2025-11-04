@@ -108,6 +108,18 @@ app.put('/v1/journey/usuario/senha/:id', cors(), bodyParserJSON, async function 
     response.status(result.status_code)
     response.json(result)
 })
+app.put('/v1/journey/usuario/:id', cors(), bodyParserJSON, async function (request, response) {
+    //recebe o content-type da requisição
+    let contentType=request.headers['content-type']
+    //recebe do body da requisição os dados encaminhados
+
+    let id = request.params.id
+    //body da requisição
+    let dadosBody=request.body
+    let result= await  controllerUser.atualizarUsuario(id, dadosBody, contentType)
+    response.status(result.status_code)
+    response.json(result)
+})
 app.get('/v1/journey/usuario', cors(), async function (request, response) {
     let result= await controllerUser.listarUsuario()
     response.status(result.status_code)
