@@ -1,21 +1,26 @@
 /***************************************************************************************************************************
- * OBJETIVO: Criar a comunicação com o Banco de Dados para fazer o CRUD de categoria
+ * OBJETIVO: Criar a comunicação com o Banco de Dados para fazer o CRUD de categoria usando Prisma ORM
  * DATA: 25/09/2025
  * AUTOR: Gabriel Guedes
- * Versão: 1.0
+ * Versão: 2.0
  **************************************************************************************************************************/
 
-//import da biblioteca do prisma client para executar os scripts SQL
+// Import do Prisma Client
 const { PrismaClient } = require('@prisma/client')
 
-//Instancia (criar um objeto a ser utilizado) a biblioteca do prisma/client
+// Instancia do Prisma Client
 const prisma = new PrismaClient()
 
+// ------------------------------------------------------
+// Inserir Categoria
+// ------------------------------------------------------
 const inserirCategoria = async (dados) => {
     try {
-        let sql = `CALL sp_insert_categoria('${dados.categoria}')`
-
-        let result = await prisma.$executeRawUnsafe(sql)
+        const result = await prisma.categoria.create({
+            data: {
+                categoria: dados.categoria
+            }
+        })
         return result ? true : false
     } catch (error) {
         console.error('Erro ao inserir categoria:', error)
@@ -23,11 +28,19 @@ const inserirCategoria = async (dados) => {
     }
 }
 
+// ------------------------------------------------------
+// Atualizar Categoria
+// ------------------------------------------------------
 const updateCategoria = async (dados) => {
     try {
-        let sql = `CALL sp_update_categoria(${dados.id}, '${dados.categoria}')`
-
-        let result = await prisma.$executeRawUnsafe(sql)
+        const result = await prisma.categoria.update({
+            where: {
+                id_categoria: dados.id
+            },
+            data: {
+                categoria: dados.categoria
+            }
+        })
         return result ? true : false
     } catch (error) {
         console.error('Erro ao atualizar categoria:', error)
@@ -35,11 +48,16 @@ const updateCategoria = async (dados) => {
     }
 }
 
+// ------------------------------------------------------
+// Deletar Categoria
+// ------------------------------------------------------
 const deleteCategoria = async (id) => {
     try {
-        let sql = `CALL sp_delete_categoria(${id})`
-
-        let result = await prisma.$executeRawUnsafe(sql)
+        const result = await prisma.categoria.delete({
+            where: {
+                id_categoria: id
+            }
+        })
         return result ? true : false
     } catch (error) {
         console.error('Erro ao deletar categoria:', error)
@@ -47,31 +65,43 @@ const deleteCategoria = async (id) => {
     }
 }
 
+// ------------------------------------------------------
+// Selecionar Todas as Categorias
+// ------------------------------------------------------
 const selectAllCategoria = async () => {
     try {
-        let sql = `SELECT * FROM vw_categorias`
-        let result = await prisma.$queryRawUnsafe(sql)
-
-        return result && result.length > 0 ? result : false
+        const result = await prisma.categoria.findMany({
+            orderBy: {
+                id_categoria: 'desc'
+            }
+        })
+        return result.length > 0 ? result : false
     } catch (error) {
         console.error('Erro ao listar categorias:', error)
         return false
     }
 }
 
+// ------------------------------------------------------
+// Selecionar Categoria por ID
+// ------------------------------------------------------
 const selectCategoriaById = async (id) => {
     try {
-        let sql = `SELECT * FROM vw_categoria WHERE id_categoria = ${id}`
-        let result = await prisma.$queryRawUnsafe(sql)
-
-        return result && result.length > 0 ? result[0] : false
+        const result = await prisma.categoria.findUnique({
+            where: {
+                id_categoria: id
+            }
+        })
+        return result ? [result] : false // mantém compatível com sua controller
     } catch (error) {
         console.error('Erro ao buscar categoria por ID:', error)
         return false
     }
 }
 
-
+// ------------------------------------------------------
+// Export dos métodos
+// ------------------------------------------------------
 module.exports = {
     inserirCategoria,
     updateCategoria,
