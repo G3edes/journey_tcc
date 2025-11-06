@@ -439,6 +439,14 @@ app.put('/v1/journey/usuario-grupo/:id', cors(), bodyParserJSON, async (req, res
   res.status(result.status_code).json(result)
 })
 
+app.get('/v1/journey/grupo/:id_grupo/participantes', controllerUsuarioGrupo.listarParticipantesDoGrupo);
+
+// Remover participante
+app.delete('/v1/journey/grupo/remover-participante', controllerUsuarioGrupo.removerParticipante);
+
+app.delete('/v1/journey/grupo/remover-participante', express.json(), controllerUsuarioGrupo.removerParticipante);
+
+
 /*******************************************************************************************************************
  * 
  *                                  ROTAS ESPECÍFICAS DE GRUPOS
@@ -634,7 +642,16 @@ app.delete('/v1/journey/mensagem/:id', cors(), async function (request, response
     }
   })
 
+/*******************************************************************************************************************
+ * 
+ *                                  CHAT ROOM privado
+ * 
+ *******************************************************************************************************************/
 
+const { obterOuCriarSalaPrivada, listarConversasPrivadas } = require('./controller/chat/controllerChatRoom');
+app.post('/v1/journey/chat-room/privado', obterOuCriarSalaPrivada);
+
+app.get( "/v1/journey/usuario/:id_usuario/conversas-privadas", listarConversasPrivadas);
 
 /*******************************************************************************************************************
  * 

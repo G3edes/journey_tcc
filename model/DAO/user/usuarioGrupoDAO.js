@@ -82,26 +82,39 @@ const deleteUsuarioGrupo = async (id) => {
 }
 
 // ====================== DELETE POR USUARIO+GRUPO ==========================
+// DELETE POR USUARIO+GRUPO (robusto)
 const deleteUsuarioGrupoByIds = async (idUsuario, idGrupo) => {
   try {
+    // garante números
+    const u = Number(idUsuario);
+    const g = Number(idGrupo);
+    if (!u || !g) {
+      console.warn("deleteUsuarioGrupoByIds: ids inválidos", { idUsuario, idGrupo });
+      return { ok: false, affected: 0, message: "IDs inválidos" };
+    }
+
     const sql = `
       DELETE FROM tbl_usuario_grupo
       WHERE id_usuario = ? AND id_grupo = ?
-    `
-    const result = await prisma.$executeRawUnsafe(sql, idUsuario, idGrupo)
+    `;
+    const result = await prisma.$executeRawUnsafe(sql, u, g);
 
-    if (result > 0) {
-      console.log(`✅ Usuário ${idUsuario} removido do grupo ${idGrupo}`)
-      return true
+    // prisma.$executeRawUnsafe retorna número de linhas afetadas (MySQL)
+    const affected = Number(result) || 0;
+
+    if (affected > 0) {
+      console.log(`✅ deleteUsuarioGrupoByIds: removido usuario=${u} do grupo=${g}`);
+      return { ok: true, affected };
     } else {
-      console.warn("⚠️ Nenhum registro deletado (usuário não estava no grupo)")
-      return false
+      console.warn(`⚠️ deleteUsuarioGrupoByIds: nenhum registro encontrado para usuario=${u} grupo=${g}`);
+      return { ok: false, affected: 0, message: "Nenhum registro deletado" };
     }
   } catch (error) {
-    console.error("❌ Erro deleteUsuarioGrupoByIds:", error)
-    return false
+    console.error("❌ Erro deleteUsuarioGrupoByIds:", error);
+    return { ok: false, affected: 0, message: error.message || "Erro interno" };
   }
-}
+};
+
 
 // ====================== VERIFICAR PARTICIPAÇÃO ==========================
 const verificarParticipacao = async (idUsuario, idGrupo) => {
@@ -152,56 +165,69 @@ const selectGroupsByUser = async (idUsuario) => {
 }
 
 // ====================== LISTAR GRUPOS CRIADOS PELO USUÁRIO ==========================
+// ====================== LISTAR GRUPOS CRIADOS PELO USUÁRIO ==========================
 const selectGroupsCreatedByUser = async (idUsuario) => {
   try {
-    try {
-      const sql1 = `SELECT * FROM tbl_grupo WHERE id_usuario = ?`
-      const res1 = await prisma.$queryRawUnsafe(sql1, idUsuario)
-      if (res1 && res1.length > 0) return res1
-    } catch (err) {
-      console.warn("selectGroupsCreatedByUser: tentativa com id_usuario falhou:", err.message || err)
-    }
-
-    try {
-      const sql2 = `SELECT * FROM tbl_grupo WHERE id_criador = ?`
-      const res2 = await prisma.$queryRawUnsafe(sql2, idUsuario)
-      if (res2 && res2.length > 0) return res2
-    } catch (err) {
-      console.warn("selectGroupsCreatedByUser: tentativa com id_criador falhou:", err.message || err)
-    }
-
-    try {
-      const sql3 = `SELECT * FROM tbl_grupo WHERE id_criador_usuario = ?`
-      const res3 = await prisma.$queryRawUnsafe(sql3, idUsuario)
-      if (res3 && res3.length > 0) return res3
-    } catch (err) {
-      console.warn("selectGroupsCreatedByUser: tentativa com id_criador_usuario falhou:", err.message || err)
-    }
-
-    try {
-      const sql4 = `SELECT * FROM tbl_grupo WHERE id_usuario_criador = ?`
-      const res4 = await prisma.$queryRawUnsafe(sql4, idUsuario)
-      if (res4 && res4.length > 0) return res4
-    } catch (err) {
-      console.warn("selectGroupsCreatedByUser: tentativa com id_usuario_criador falhou:", err.message || err)
-    }
-
-    try {
-      const sqlAll = `SELECT * FROM tbl_grupo`
-      const all = await prisma.$queryRawUnsafe(sqlAll)
-      const filtered = Array.isArray(all)
-        ? all.filter(g => Number(g.id_usuario) === Number(idUsuario) || Number(g.id_criador) === Number(idUsuario))
-        : []
-      return filtered
-    } catch (err) {
-      console.error("selectGroupsCreatedByUser: fallback geral falhou", err)
-      return []
-    }
+    const sql = `
+      SELECT * FROM tbl_grupo
+      WHERE id_usuario = ?
+    `
+    const result = await prisma.$queryRawUnsafe(sql, idUsuario)
+    return result || []
   } catch (error) {
-    console.error("❌ Erro selectGroupsCreatedByUser (final):", error)
+    console.error("❌ Erro selectGroupsCreatedByUser:", error)
     return []
   }
 }
+
+const executarQuery = async (sql, params = []) => {
+  try {
+    const result = await prisma.$queryRawUnsafe(sql, ...params);
+    return result;
+  } catch (error) {
+    console.error("Erro executarQuery:", error);
+    return [];
+  }
+};
+
+// Listar participantes de um grupo com dados do usuário
+const listarParticipantesPorGrupo = async (id_grupo) => {
+  try {
+    const sql = `
+      SELECT 
+        u.id_usuario,
+        u.nome_completo,
+        u.email,
+        u.foto_perfil,
+        g.id_usuario AS id_criador
+      FROM tbl_usuario_grupo ug
+      INNER JOIN tbl_usuario u ON u.id_usuario = ug.id_usuario
+      INNER JOIN tbl_grupo g ON g.id_grupo = ug.id_grupo
+      WHERE ug.id_grupo = ?
+    `;
+    const result = await prisma.$queryRawUnsafe(sql, id_grupo);
+    return result;
+  } catch (error) {
+    console.error("❌ Erro listarParticipantesPorGrupo:", error);
+    return [];
+  }
+};
+
+// Verificar se o usuário logado é o criador do grupo
+const verificarSeEhCriador = async (idUsuario, idGrupo) => {
+  try {
+    const sql = `
+      SELECT * FROM tbl_grupo 
+      WHERE id_grupo = ? AND id_usuario = ?
+    `;
+    const result = await prisma.$queryRawUnsafe(sql, idGrupo, idUsuario);
+    return result.length > 0;
+  } catch (error) {
+    console.error("❌ Erro verificarSeEhCriador:", error);
+    return false;
+  }
+};
+
 
 // ===========================================================
 module.exports = {
@@ -214,5 +240,8 @@ module.exports = {
   verificarParticipacao,
   countParticipantesByGroup,
   selectGroupsByUser,
-  selectGroupsCreatedByUser
+  selectGroupsCreatedByUser,
+  executarQuery,
+  listarParticipantesPorGrupo,
+  verificarSeEhCriador
 }

@@ -7,185 +7,184 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-//
 model Usuario {
-  id_usuario        Int               @id @default(autoincrement())
-  nome_completo     String
-  email             String            @unique
-  senha             String
-  data_nascimento   DateTime?
-  foto_perfil       String?
-  descricao         String?
-  tipo_usuario      String
-
-  grupos            Grupo[]
-  calendarios       Calendario[]
-  chat_participacoes ChatParticipant[] @relation("ChatRoomParticipantes")
-  mensagens         Mensagem[]         @relation("ChatRoomMensagens")
-  ebooks            Ebooks[]           @relation("UsuarioEbooks")
-
-  // 🔽 Adicione esta linha:
-  calendariosPessoais CalendarioPessoal[]
+  id_usuario                                  Int                      @id @default(autoincrement())
+  nome_completo                               String                   @db.VarChar(150)
+  email                                       String                   @db.VarChar(100)
+  data_nascimento                             DateTime?                @db.Date
+  foto_perfil                                 String?                  @db.VarChar(255)
+  descricao                                   String?                  @db.Text
+  senha                                       String                   @db.VarChar(255)
+  tipo_usuario                                tbl_usuario_tipo_usuario
+  calendarios                                 Calendario[]
+  tbl_chat_tbl_chat_destinatarioTotbl_usuario tbl_chat[]               @relation("tbl_chat_destinatarioTotbl_usuario")
+  tbl_chat_tbl_chat_remetenteTotbl_usuario    tbl_chat[]               @relation("tbl_chat_remetenteTotbl_usuario")
+  chat_participacoes                          ChatParticipant[]        @relation("ChatRoomParticipantes")
+  ebooks                                      Ebooks[]                 @relation("UsuarioEbooks")
+  grupos                                      Grupo[]
+  mensagens                                   Mensagem[]               @relation("ChatRoomMensagens")
+  tbl_usuario_grupo                           tbl_usuario_grupo[]
 
   @@map("tbl_usuario")
 }
 
-
-//
-// ------------------------
-// Modelo Area
-// ------------------------
 model Area {
-  id_area   Int     @id @default(autoincrement())
-  area      String  @db.VarChar(100)
-  grupos    Grupo[]
+  id_area Int     @id @default(autoincrement())
+  area    String  @db.VarChar(100)
+  grupos  Grupo[]
 
   @@map("tbl_area")
 }
 
-//
-// ------------------------
-// Modelo Grupo
-// ------------------------
 model Grupo {
-  id_grupo       Int           @id @default(autoincrement())
-  nome           String
-  limite_membros Int
-  descricao      String?
-  imagem         String?
-  id_area        Int
-  id_usuario     Int
+  id_grupo          Int                 @id @default(autoincrement())
+  nome              String              @db.VarChar(100)
+  limite_membros    Int
+  descricao         String              @db.Text
+  imagem            String              @db.VarChar(255)
+  id_area           Int
+  id_usuario        Int
+  calendarios       Calendario[]
+  chat_room         ChatRoom?           @relation("GrupoChatRoom")
+  area              Area                @relation(fields: [id_area], references: [id_area], onDelete: NoAction, onUpdate: NoAction, map: "fk_grupo_area")
+  usuario           Usuario             @relation(fields: [id_usuario], references: [id_usuario], onDelete: NoAction, onUpdate: NoAction, map: "fk_grupo_usuario")
+  tbl_mensagens     Mensagem[]
+  tbl_usuario_grupo tbl_usuario_grupo[]
 
-  usuario        Usuario       @relation(fields: [id_usuario], references: [id_usuario])
-  area           Area          @relation(fields: [id_area], references: [id_area])
-  calendarios    Calendario[]
-  chat_room      ChatRoom?
-
+  @@index([id_area], map: "fk_grupo_area")
+  @@index([id_usuario], map: "fk_grupo_usuario")
   @@map("tbl_grupo")
 }
 
-//
-// ------------------------
-// Modelo Calendario
-// ------------------------
-model Calendario {
-  id_calendario Int      @id @default(autoincrement())
-  nome_evento   String   @db.VarChar(100)
-  data_evento   DateTime
-  descricao     String?
-  link          String?  @db.VarChar(500)
-  id_usuario    Int
-  id_grupo      Int
-
-  usuario       Usuario  @relation(fields: [id_usuario], references: [id_usuario])
-  grupo         Grupo    @relation(fields: [id_grupo], references: [id_grupo])
-  calendarioPessoal CalendarioPessoal[]   // <--- ADD
-
-  @@map("tbl_calendario")
-}
-
-//
-// ------------------------
-// Modelo CalendarioPessoal
-// ------------------------
-model CalendarioPessoal {
-  id_calendario_pessoal Int @id @default(autoincrement())
-  id_calendario          Int
-  id_usuario             Int
-
-  calendario Calendario @relation(fields: [id_calendario], references: [id_calendario])
-  usuario    Usuario    @relation(fields: [id_usuario], references: [id_usuario])
-
-  @@map("tbl_calendario_pessoal")
-}
-
-//
-// ------------------------
-// Modelo ChatRoom
-// ------------------------
 model ChatRoom {
-  id_chat_room    Int              @id @default(autoincrement())
-  tipo            TipoChat
-  id_grupo        Int?             @unique
-  criado_em       DateTime         @default(now())
-
-  mensagens       Mensagem[]       @relation("ChatRoomMensagens")
-  participantes   ChatParticipant[] @relation("ChatRoomParticipantes")
-  grupo           Grupo?           @relation(fields: [id_grupo], references: [id_grupo])
+  id_chat_room  Int               @id @default(autoincrement())
+  tipo          TipoChat
+  id_grupo      Int?              @unique(map: "uq_chatroom_grupo")
+  criado_em     DateTime?         @default(now()) @db.Timestamp(0)
+  participantes ChatParticipant[] @relation("ChatRoomParticipantes")
+  grupo         Grupo?            @relation("GrupoChatRoom", fields: [id_grupo], references: [id_grupo], onDelete: Cascade, map: "fk_chatroom_grupo")
+  mensagens     Mensagem[]        @relation("ChatRoomMensagens")
 
   @@map("tbl_chat_room")
 }
 
-//
-// ------------------------
-// Modelo ChatParticipant
-// ------------------------
+model Calendario {
+  id_calendario Int       @id @default(autoincrement())
+  nome_evento   String    @db.VarChar(100)
+  data_evento   DateTime? @db.DateTime(0)
+  descricao     String?   @db.Text
+  link          String    @db.VarChar(500)
+  id_grupo      Int
+  id_usuario    Int
+  grupo         Grupo     @relation(fields: [id_grupo], references: [id_grupo], onDelete: NoAction, onUpdate: NoAction, map: "fk_calendario_evento_grupo")
+  usuario       Usuario   @relation(fields: [id_usuario], references: [id_usuario], onDelete: NoAction, onUpdate: NoAction, map: "fk_calendario_usuario")
+
+  @@index([id_grupo], map: "fk_calendario_evento_grupo")
+  @@index([id_usuario], map: "fk_calendario_usuario")
+  @@map("tbl_calendario")
+}
+
 model ChatParticipant {
-  id_participante Int     @id @default(autoincrement())
+  id_participante Int      @id @default(autoincrement())
   id_chat_room    Int
   id_usuario      Int
+  chat_room       ChatRoom @relation("ChatRoomParticipantes", fields: [id_chat_room], references: [id_chat_room], onDelete: NoAction, onUpdate: NoAction, map: "tbl_chat_participant_ibfk_1")
+  usuario         Usuario  @relation("ChatRoomParticipantes", fields: [id_usuario], references: [id_usuario], onDelete: NoAction, onUpdate: NoAction, map: "tbl_chat_participant_ibfk_2")
 
-  chat_room ChatRoom @relation("ChatRoomParticipantes", fields: [id_chat_room], references: [id_chat_room])
-  usuario   Usuario  @relation("ChatRoomParticipantes", fields: [id_usuario], references: [id_usuario])
-
+  @@index([id_chat_room], map: "id_chat_room")
+  @@index([id_usuario], map: "id_usuario")
   @@map("tbl_chat_participant")
 }
 
-//
-// ------------------------
-// Modelo Mensagem
-// ------------------------
 model Mensagem {
-  id_mensagem Int      @id @default(autoincrement())
-  id_chat_room Int
+  id_mensagem  Int       @id @default(autoincrement()) @map("id_mensagens")
+  conteudo     String    @db.Text
+  enviado_em   DateTime? @default(now()) @db.Timestamp(0)
+  id_chat_room Int?
+  id_grupo     Int?
   id_usuario   Int
-  conteudo     String   @db.Text
-  enviado_em   DateTime @default(now())
+  chat_room    ChatRoom? @relation("ChatRoomMensagens", fields: [id_chat_room], references: [id_chat_room], onDelete: Cascade, map: "fk_mensagens_chatroom")
+  tbl_grupo    Grupo?    @relation(fields: [id_grupo], references: [id_grupo], map: "fk_mensagens_grupo")
+  usuario      Usuario   @relation("ChatRoomMensagens", fields: [id_usuario], references: [id_usuario], onDelete: NoAction, onUpdate: NoAction, map: "fk_mensagens_usuario")
 
-  chat_room ChatRoom @relation("ChatRoomMensagens", fields: [id_chat_room], references: [id_chat_room])
-  usuario   Usuario  @relation("ChatRoomMensagens", fields: [id_usuario], references: [id_usuario])
-
+  @@index([id_chat_room], map: "fk_mensagens_chatroom")
+  @@index([id_grupo], map: "fk_mensagens_grupo")
+  @@index([id_usuario], map: "fk_mensagens_usuario")
   @@map("tbl_mensagens")
 }
 
-//
-// ------------------------
-// Enum TipoChat
-// ------------------------
-enum TipoChat {
-  privado
-  grupo
-}
-
 model Categoria {
-  id_categoria     Int                 @id @default(autoincrement())
-  categoria        String              @db.VarChar(100)
-  ebooksCategorias EbooksCategoria[]   @relation("EbookCategorias")
+  id_categoria     Int               @id @default(autoincrement())
+  categoria        String            @db.VarChar(100)
+  ebooksCategorias EbooksCategoria[] @relation("EbookCategorias")
 
   @@map("tbl_categoria")
 }
 
 model Ebooks {
-  id_ebooks          Int                @id @default(autoincrement())
-  titulo             String             @db.VarChar(100)
-  preco              Decimal            @db.Decimal(10, 2)
-  descricao          String
-  link_imagem        String             @db.VarChar(255)
-  link_arquivo_pdf   String?            @db.VarChar(255)
-  id_usuario         Int
-  usuario            Usuario            @relation("UsuarioEbooks", fields: [id_usuario], references: [id_usuario], onDelete: Cascade, onUpdate: Cascade)
-  categoriasEbooks   EbooksCategoria[]  @relation("EbookCategorias")
+  id_ebooks        Int               @id @default(autoincrement())
+  titulo           String            @db.VarChar(100)
+  preco            Decimal           @db.Decimal(10, 2)
+  descricao        String            @db.Text
+  link_imagem      String            @db.VarChar(255)
+  link_arquivo_pdf String?           @db.VarChar(255)
+  id_usuario       Int
+  usuario          Usuario           @relation("UsuarioEbooks", fields: [id_usuario], references: [id_usuario], onDelete: NoAction, onUpdate: NoAction, map: "fk_ebooks_usuario")
+  categoriasEbooks EbooksCategoria[] @relation("EbookCategorias")
 
+  @@index([id_usuario], map: "fk_ebooks_usuario")
   @@map("tbl_ebooks")
 }
 
 model EbooksCategoria {
-  id_ebooks_categoria Int        @id @default(autoincrement())
+  id_ebooks_categoria Int       @id @default(autoincrement())
   id_categoria        Int
   id_ebooks           Int
+  categoria           Categoria @relation("EbookCategorias", fields: [id_categoria], references: [id_categoria], onDelete: Cascade, map: "fk_ebooks_categoria_categoria")
+  ebooks              Ebooks    @relation("EbookCategorias", fields: [id_ebooks], references: [id_ebooks], onDelete: Cascade, map: "fk_ebooks_categoria_ebooks")
 
-  categoria           Categoria  @relation("EbookCategorias", fields: [id_categoria], references: [id_categoria], onDelete: Cascade, onUpdate: Cascade)
-  ebooks              Ebooks     @relation("EbookCategorias", fields: [id_ebooks], references: [id_ebooks], onDelete: Cascade, onUpdate: Cascade)
-
+  @@index([id_categoria], map: "fk_ebooks_categoria_categoria")
+  @@index([id_ebooks], map: "fk_ebooks_categoria_ebooks")
   @@map("tbl_ebooks_categoria")
+}
+
+model tbl_chat {
+  id_chat                                        Int      @id @default(autoincrement())
+  criado_em                                      DateTime @db.Timestamp(0)
+  remetente                                      Int
+  destinatario                                   Int
+  tbl_usuario_tbl_chat_destinatarioTotbl_usuario Usuario  @relation("tbl_chat_destinatarioTotbl_usuario", fields: [destinatario], references: [id_usuario], onDelete: NoAction, onUpdate: NoAction, map: "fk_chat_destinatario")
+  tbl_usuario_tbl_chat_remetenteTotbl_usuario    Usuario  @relation("tbl_chat_remetenteTotbl_usuario", fields: [remetente], references: [id_usuario], onDelete: NoAction, onUpdate: NoAction, map: "fk_chat_remetente")
+
+  @@index([destinatario], map: "fk_chat_destinatario")
+  @@index([remetente], map: "fk_chat_remetente")
+}
+
+model tbl_codigo_recuperacao {
+  id        Int      @id @default(autoincrement())
+  email     String   @db.VarChar(60)
+  codigo    String   @db.VarChar(10)
+  expiracao DateTime @db.DateTime(0)
+}
+
+model tbl_usuario_grupo {
+  id_usuario_grupo Int      @id @default(autoincrement())
+  id_usuario       Int
+  id_grupo         Int
+  entrou_em        DateTime @db.Timestamp(0)
+  tbl_grupo        Grupo    @relation(fields: [id_grupo], references: [id_grupo], onDelete: Cascade, map: "fk_usuario_grupo_grupo")
+  tbl_usuario      Usuario  @relation(fields: [id_usuario], references: [id_usuario], onDelete: Cascade, map: "fk_usuario_grupo_usuario")
+
+  @@index([id_grupo], map: "fk_usuario_grupo_grupo")
+  @@index([id_usuario], map: "fk_usuario_grupo_usuario")
+}
+
+enum TipoChat {
+  privado
+  grupo
+}
+
+enum tbl_usuario_tipo_usuario {
+  Profissional
+  Estudante
 }

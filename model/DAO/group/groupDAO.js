@@ -13,7 +13,6 @@ const insertGrupo = async (g) => {
       INSERT INTO tbl_grupo (nome, limite_membros, descricao, imagem, id_area, id_usuario)
       VALUES (?, ?, ?, ?, ?, ?)
     `
-
     const affected = await prisma.$executeRawUnsafe(
       sql,
       g.nome,
@@ -25,14 +24,14 @@ const insertGrupo = async (g) => {
     )
 
     if (!affected || affected <= 0) {
-      console.warn("insertGrupo: nenhuma linha afetada");
-      return { ok: false, affected }
+      console.warn("insertGrupo: nenhuma linha afetada")
+      return { ok: false }
     }
 
-    const rows = await prisma.$queryRawUnsafe("SELECT LAST_INSERT_ID() as insertId");
-    const insertId = Array.isArray(rows) && rows.length > 0 ? (rows[0].insertId ?? rows[0].LAST_INSERT_ID) : null
+    const rows = await prisma.$queryRawUnsafe("SELECT LAST_INSERT_ID() as insertId")
+    const insertId = Array.isArray(rows) && rows.length > 0 ? rows[0].insertId : null
 
-    return { ok: true, affected, insertId }
+    return { ok: true, insertId }
   } catch (error) {
     console.error("Erro insertGrupo:", error)
     return false
@@ -71,19 +70,16 @@ const updateGrupo = async (dados) => {
 }
 const getGrupoComChatRoom = async (id_grupo) => {
   try {
-    const grupo = await prisma.Grupo.findUnique({
+    const grupo = await prisma.grupo.findUnique({
       where: { id_grupo: Number(id_grupo) },
       include: {
-        usuario: {
-          select: { id_usuario: true, nome_completo: true, foto_perfil: true }
-        },
+        usuario: { select: { id_usuario: true, nome_completo: true, foto_perfil: true } },
         area: true,
-        chat_room: true  // inclui as salas de chat associadas
+        chat_room: true
       }
     })
-    console.log(grupo)
-
-    return grupo ? grupo : null
+    console.log("📦 getGrupoComChatRoom:", grupo)
+    return grupo || null
   } catch (error) {
     console.error('Erro getGrupoComChatRoom:', error)
     return null

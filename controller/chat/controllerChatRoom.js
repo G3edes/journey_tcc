@@ -146,11 +146,78 @@ const buscarChatRoom = async (id) => {
   }
 }
 
+const obterOuCriarSalaPrivada = async (req, res) => {
+  try {
+    const { id_usuario1, id_usuario2 } = req.body;
+
+    if (!id_usuario1 || !id_usuario2)
+      return res.status(400).json({ message: 'IDs de usuário obrigatórios.' });
+
+    // 1️⃣ Verifica se já existe uma sala entre esses usuários
+    let sala = await DAOChatRoom.findPrivateChatBetweenUsers(id_usuario1, id_usuario2);
+
+    if (sala) {
+      console.log('✅ Sala privada existente encontrada:', sala.id_chat_room);
+      return res.status(200).json({ sala });
+    }
+
+    // 2️⃣ Se não existir, cria uma nova
+    sala = await DAOChatRoom.createPrivateChatRoom(id_usuario1, id_usuario2);
+
+    if (!sala) {
+      return res.status(500).json({ message: 'Erro ao criar sala privada.' });
+    }
+
+    console.log('✅ Nova sala privada criada:', sala.id_chat_room);
+    return res.status(201).json({ sala });
+  } catch (error) {
+    console.error('Erro obterOuCriarSalaPrivada:', error);
+    return res.status(500).json({ message: 'Erro interno no servidor.' });
+  }
+};
+
+const listarConversasPrivadas = async (req, res) => {
+  try {
+    const { id_usuario } = req.params;
+
+    const salas = await DAOChatRoom.getConversasPrivadasPorUsuario(id_usuario);
+    if (!salas || salas.length === 0) {
+      return res.status(200).json({ conversas: [] });
+    }
+
+    const conversas = salas.map((sala) => {
+      // pega o outro usuário (não o logado)
+      const outro = sala.participantes.find(p => p.id_usuario !== Number(id_usuario))?.usuario || {};
+
+      const ultima = sala.mensagens?.[0] || {};
+
+      return {
+        id_chat_room: sala.id_chat_room,
+        contato: {
+          id_usuario: outro.id_usuario,
+          nome_completo: outro.nome_completo,
+          foto_perfil: outro.foto_perfil,
+        },
+        ultima_mensagem: ultima.conteudo || "",
+        atualizado_em: ultima.enviado_em || sala.criado_em,
+      };
+    });
+
+    return res.status(200).json({ conversas });
+  } catch (error) {
+    console.error("❌ Erro listarConversasPrivadas:", error);
+    return res.status(500).json({ message: "Erro interno ao listar conversas." });
+  }
+};
+
+
 module.exports = {
   inserirChatRoom,
   atualizarChatRoom,
   excluirChatRoom,
   listarChatRooms,
   buscarChatRoom,
-  getMensagensChat
+  getMensagensChat,
+  obterOuCriarSalaPrivada,
+  listarConversasPrivadas
 }

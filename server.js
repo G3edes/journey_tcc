@@ -39,23 +39,28 @@ io.on('connection', (socket) => {
   })
   const config = require ('./module/config')
   // Recebe mensagem de um cliente
-  socket.on('send_message', async (data) => {
-    try {
-      // data deve conter: { id_chat_room, id_usuario, conteudo }
-      let result = await controllerMensagem.inserirMensagem(data, 'application/json')
+  socket.on("send_message", async (data) => {
+  try {
+    console.log("📨 Mensagem recebida do cliente:", data);
 
-      if (result === config.SUCESS_CREATED_ITEM) {
-        // Emite a mensagem para todos na sala
-        io.to(`chat_${data.id_chat_room}`).emit('receive_message', {
-          id_usuario: data.id_usuario,
-          conteudo: data.conteudo,
-          enviado_em: new Date()
-        })
-      }
-    } catch (error) {
-      console.error('Erro socket send_message:', error)
+    const result = await controllerMensagem.inserirMensagem(data, "application/json");
+    console.log("💾 Resultado do controllerMensagem:", result);
+
+    if (result && result.status) {
+      io.to(`chat_${data.id_chat_room}`).emit("receive_message", {
+        ...data,
+        enviado_em: new Date(),
+      });
+      console.log("✅ Mensagem emitida para sala:", data.id_chat_room);
+    } else {
+      console.warn("⚠️ Mensagem não enviada. Retorno do controller:", result);
     }
-  })
+  } catch (error) {
+    console.error("❌ Erro socket send_message:", error);
+  }
+});
+
+
 
   // Usuário sai da sala
   socket.on('leave_room', (id_chat_room) => {

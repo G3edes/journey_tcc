@@ -4,19 +4,22 @@ const prisma = new PrismaClient()
 // Inserir mensagem
 const insertMensagem = async (dados) => {
   try {
-    const result = await prisma.Mensagem.create({
+    const result = await prisma.mensagem.create({
       data: {
         id_chat_room: Number(dados.id_chat_room),
         id_usuario: Number(dados.id_usuario),
-        conteudo: String(dados.conteudo)
+        conteudo: String(dados.conteudo),
+        enviado_em: new Date() // 🔥 adiciona o timestamp atual
       }
-    })
-    return result ? true : false
+    });
+
+    return result; // retorna o objeto salvo (não só true/false)
   } catch (error) {
-    console.error('Erro insertMensagem:', error)
-    return false
+    console.error("❌ Erro insertMensagem:", error);
+    return false;
   }
-}
+};
+
 
 // Listar todas as mensagens (ordenadas por envio)
 const selectAllMensagens = async () => {

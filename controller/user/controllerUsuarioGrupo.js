@@ -208,6 +208,64 @@ const contarParticipantes = async (idGrupo) => {
   }
 }
 
+
+// ✅ Listar participantes de um grupo
+const listarParticipantesDoGrupo = async (req, res) => {
+  try {
+    const id_grupo = Number(req.params.id_grupo);
+    if (!id_grupo) return res.status(400).json({ message: "ID inválido." });
+
+    const participantes = await usuarioGrupoDAO.listarParticipantesPorGrupo(id_grupo);
+
+    if (!participantes.length) {
+      return res.status(200).json({ participantes: [] });
+    }
+
+    return res.status(200).json({ participantes });
+  } catch (error) {
+    console.error("Erro listarParticipantesDoGrupo:", error);
+    return res.status(500).json({ message: "Erro interno ao listar participantes." });
+  }
+};
+
+// ❌ Remover participante (somente criador pode)
+const removerParticipante = async (req, res) => {
+  try {
+    // aceita tanto JSON no body quanto query (fallback)
+    const id_grupo = Number(req.body.id_grupo ?? req.query.id_grupo);
+    const id_usuario_removido = Number(req.body.id_usuario_removido ?? req.query.id_usuario_removido);
+    const id_usuario_logado = Number(req.body.id_usuario_logado ?? req.query.id_usuario_logado);
+
+    if (!id_grupo || !id_usuario_removido || !id_usuario_logado) {
+      return res.status(400).json({ status: false, message: "Dados inválidos: id_grupo, id_usuario_removido e id_usuario_logado são obrigatórios." });
+    }
+
+    // 1) verifica se usuário logado é o criador
+    const ehCriador = await usuarioGrupoDAO.verificarSeEhCriador(id_usuario_logado, id_grupo);
+    if (!ehCriador) {
+      return res.status(403).json({ status: false, message: "Apenas o criador pode remover participantes." });
+    }
+
+    // 2) não permitir remover o próprio criador (proteção extra)
+    const removerEHcriador = await usuarioGrupoDAO.verificarSeEhCriador(id_usuario_removido, id_grupo);
+    if (removerEHcriador) {
+      return res.status(400).json({ status: false, message: "Não é permitido remover o criador do grupo." });
+    }
+
+    // 3) tenta deletar
+    const delRes = await usuarioGrupoDAO.deleteUsuarioGrupoByIds(id_usuario_removido, id_grupo);
+    if (delRes.ok && delRes.affected > 0) {
+      return res.status(200).json({ status: true, message: "Participante removido com sucesso." });
+    } else {
+      return res.status(404).json({ status: false, message: delRes.message || "Participante não encontrado no grupo." });
+    }
+  } catch (error) {
+    console.error("❌ Erro removerParticipante controller:", error);
+    return res.status(500).json({ status: false, message: "Erro interno ao remover participante.", error: error.message });
+  }
+};
+
+
 module.exports = {
   inserirUsuarioGrupo,
   listarUsuarioGrupo,
@@ -218,5 +276,7 @@ module.exports = {
   sairDoGrupo,
   listarGruposPorUsuario,
   listarGruposCriadosPorUsuario,
-  contarParticipantes
+  contarParticipantes,
+  listarParticipantesDoGrupo,
+  removerParticipante
 }
