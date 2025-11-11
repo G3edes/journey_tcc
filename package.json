@@ -39,6 +39,8 @@
   },
 
   "scripts": {
+    "postinstall": "prisma generate",
+
 
     "start": "node app.js",
 
