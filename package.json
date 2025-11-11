@@ -39,7 +39,8 @@
   },
 
   "scripts": {
-    "postinstall": "prisma generate",
+
+    "postinstall": "npx prisma generate",
 
 
     "start": "node app.js",
@@ -47,7 +48,7 @@
     "dev": "nodemon app.js"
 
   },
-
+  
   "devDependencies": {
 
     "gitmoji-cli": "^9.7.0"
