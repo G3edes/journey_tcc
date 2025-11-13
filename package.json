@@ -6,7 +6,7 @@
   "scripts": {
     "prepare": "chmod +x ./node_modules/.bin/prisma || true",
     "build": "node --no-warnings ./node_modules/prisma/build/index.js generate --schema=./prisma/schema.prisma",
-    "start": "npm run build && node src/server.js"
+    "start": "npm run build && node server.js"
   },
   "dependencies": {
     "@prisma/client": "^6.19.0",
