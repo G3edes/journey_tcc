@@ -755,6 +755,51 @@ app.delete('/v1/journey/calendario-pessoal/:id', cors(), async (request, respons
   const result = await controllerCalendarioPessoal.excluirCalendarioPessoal(id)
   response.status(result.status_code)
   response.json(result)
-})
+})/*******************************************************************************************************************
+*                                  PAGAMENTO EBOOK (Stripe)
+*******************************************************************************************************************/
+require("dotenv").config();
+const Stripe = require("stripe");
+const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
+const axios = require("axios");
+
+app.post("/v1/journey/ebook/pagamento", cors(), bodyParserJSON, async (req, res) => {
+ try {
+   const { titulo, preco, id_usuario, id_ebooks } = req.body;
+
+   if (!titulo || !preco || !id_usuario || !id_ebooks) {
+     return res.status(400).json({
+       status: false,
+       message: "Campos obrigatórios: titulo, preco, id_usuario, id_ebooks",
+     });
+   }
+
+   const session = await stripe.checkout.sessions.create({
+     payment_method_types: ["card"],
+     mode: "payment",
+     line_items: [
+       {
+         price_data: {
+           currency: "brl",
+           product_data: { name: titulo },
+           unit_amount: Math.round(preco * 100),
+         },
+         quantity: 1,
+       },
+     ],
+     metadata: { id_usuario, id_ebooks },
+     success_url: "http://localhost:5173/sucesso",
+     cancel_url: "http://localhost:5173/cancelado",
+   });
+
+   res.json({ url: session.url });
+ } catch (error) {
+   console.error("Erro Stripe:", error);
+   res.status(500).json({ status: false, message: "Erro ao criar pagamento" });
+ }
+});
+
+ 
+
 
 module.exports = app
