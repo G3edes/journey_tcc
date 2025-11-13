@@ -4,11 +4,9 @@
   "main": "app.js",
   "type": "commonjs",
   "scripts": {
-    "prisma:generate": "npx prisma generate --schema=./prisma/schema.prisma",
-    "postinstall": "npm run prisma:generate",
-    "start": "node app.js",
-    "dev": "nodemon app.js"
-  },
+  "postinstall": "npx prisma generate",
+  "start": "node src/server.js"
+},
   "dependencies": {
     "@prisma/client": "^6.19.0",
     "bcrypt": "^6.0.0",
