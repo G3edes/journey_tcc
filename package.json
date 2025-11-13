@@ -4,9 +4,12 @@
   "main": "server.js",
   "type": "commonjs",
   "scripts": {
+    "prepare": "chmod +x ./node_modules/.bin/prisma || true",
+    "build": "npx prisma generate --schema=./prisma/schema.prisma",
     "postinstall": "npx prisma generate --schema=./prisma/schema.prisma",
-    "start": "node server.js"
+    "start": "npm run build && node server.js"
   },
+
   "dependencies": {
     "@prisma/client": "^6.19.0",
     "bcrypt": "^6.0.0",
