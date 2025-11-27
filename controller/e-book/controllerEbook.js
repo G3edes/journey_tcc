@@ -9,37 +9,39 @@ const DAOEC = require('../../model/DAO/e-book/categoriaEbookDAO')
 // Inserir eBook + vincular categorias
 const inserirEbook = async (dados, contentType) => {
     try {
-        if (contentType && contentType.includes('application/json')) {
-            // validação dos campos obrigatórios
-            if (!dados.titulo || !dados.preco || !dados.descricao || !dados.link_imagem || !dados.id_usuario) {
-                return message.ERROR_REQUIRED_FIELDS
-            }
 
-            // Inserir o eBook
-            const novoEbook = await DAOEbook.inserirEbook(dados)
-            if (!novoEbook) {
-                return message.ERROR_INTERNAL_SERVER_MODEL
-            }
+        // ✅ Se não tiver body (caso de GET), apenas ignora a validação e segue
+        if (!dados) {
+            return { status: false, status_code: 400, message: "Dados não enviados no body" }
+        }
 
-            // Inserir vínculos de categoria (se vierem)
-            if (dados.categorias && Array.isArray(dados.categorias) && dados.categorias.length > 0) {
-                for (let idCategoria of dados.categorias) {
-                    await DAOEC.inserirEbookCategoria({
-                        id_ebooks: novoEbook.id_ebooks,
-                        id_categoria: idCategoria
-                    })
-                }
-            }
-
-            return message.SUCESS_CREATED_ITEM
-        } else {
+        // ✅ Só valida Content-Type se ele existir (GET não terá)
+        if (contentType && !contentType.includes('application/json')) {
             return message.ERROR_CONTENT_TYPE
         }
+
+        if (!dados.titulo || !dados.preco || !dados.descricao || !dados.link_imagem || !dados.id_usuario) {
+            return message.ERROR_REQUIRED_FIELDS
+        }
+
+        const novoEbook = await DAOEbook.inserirEbook(dados)
+        if (!novoEbook) {
+            return message.ERROR_INTERNAL_SERVER_MODEL
+        }
+
+        return {
+            status: true,
+            status_code: 201,
+            message: "eBook criado com sucesso!",
+            id_ebooks: novoEbook.id_ebooks
+        }
+
     } catch (error) {
         console.error(error)
         return message.ERROR_INTERNAL_SERVER_CONTROLLER
     }
 }
+
 
 
 // ------------------------------------------------------
@@ -134,8 +136,37 @@ const buscarEbook = async (id) => {
         return message.ERROR_INTERNAL_SERVER_CONTROLLER
     }
 }
+const buscarUltimoLivro = async () => {
+    try {
+        const result = await DAOEbook.selectUltimoLivroId()
+  
+        if (result && result.length > 0) {
+            return {
+                status: true,
+                status_code: 200,
+                ultimo_id: result[0].id_ebooks // ✅ chave correta do DAO
+            }
+        }
+  
+        return {
+            status: false,
+            status_code: 404,
+            message: "Nenhum eBook encontrado"
+        }
+    } catch (error) {
+        console.error(error)
+        return {
+            status: false,
+            status_code: 500,
+            message: "Erro interno no controller"
+        }
+    }
+  }  
+
+  
 
 module.exports = {
+    buscarUltimoLivro,
     inserirEbook,
     atualizarEbook,
     excluirEbook,

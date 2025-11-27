@@ -110,8 +110,21 @@ const selectEbookById = async (id) => {
         return false
     }
 }
-
+const selectUltimoLivroId = async () => {
+    try {
+      const result = await prisma.ebooks.findFirst({
+        orderBy: { id_ebooks: 'desc' },
+        select: { id_ebooks: true }
+      })
+  
+      return result ? [result] : []
+    } catch (error) {
+      console.error("selectUltimoLivroId erro:", error)
+      return []
+    }
+  }
 module.exports = {
+    selectUltimoLivroId,
     inserirEbook,
     updateEbook,
     deleteEbook,

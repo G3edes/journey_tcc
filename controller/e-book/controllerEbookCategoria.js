@@ -5,6 +5,8 @@ const message = require('../../module/config')
 // Inserir relação eBook x Categoria
 // ------------------------------------------------------
 const inserirEbookCategoria = async (dados, contentType) => {
+    console.log(dados);
+    
     try {
         if (contentType.includes('application/json')) {
             if (!dados.id_categoria || !dados.id_ebooks) {

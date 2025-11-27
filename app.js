@@ -253,6 +253,12 @@ app.delete('/v1/journey/ebook/:id', cors(), async (req, res) => {
     res.status(result.status_code)
     res.json(result)
 })
+app.get('/v1/journey/ultimo/ebook/id', cors(), async (req, res) => {
+  const result = await controllerEbook.buscarUltimoLivro()
+
+  res.status(result.status_code || 500)
+  res.json(result)
+})
 
 /*******************************************************************************************************************
  * 
