@@ -180,12 +180,17 @@ const getGrupoComChatRoom = async (id_grupo) => {
     const grupo = await grupoDAO.getGrupoComChatRoom(id);
     if (!grupo) return message.ERROR_NOT_FOUND;
 
-    return { status: true, status_code: 200, grupo };
+    return {
+      status: true,
+      status_code: 200,
+      grupo
+    };
   } catch (error) {
     console.error('❌ Erro getGrupoComChatRoom controller:', error);
     return message.ERROR_INTERNAL_SERVER_CONTROLLER;
   }
 };
+
 
 module.exports = {
   inserirGrupo,
